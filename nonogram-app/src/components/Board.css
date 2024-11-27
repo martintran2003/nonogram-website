@@ -1,6 +1,6 @@
 .cell {
   background-color: white;
-  border: 1px solid black;
+  border: 0.5px solid black;
   width: 50px;
   height: 50px;
   -webkit-user-select: none; /* Safari */
@@ -8,6 +8,9 @@
   user-select: none; /* Standard syntax */
 }
 
+table {
+  border-spacing: 0;
+}
 .label {
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */

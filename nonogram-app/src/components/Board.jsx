@@ -13,12 +13,10 @@ function Board({ size, rowLabels, columnLabels }) {
     return initBoard;
   });
 
-  const [isLeftSelecting, setIsLeftSelecting] = useState(false);
-  const [isRightSelecting, setIsRightSelecting] = useState(false);
+  const [selecting, setSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState([]);
   const [pointing, setPointing] = useState([]);
 
-  console.log(pointing);
   const [rowLabelsSolved, setRowLabelsSolved] = useState(() => {
     const rowsSolved = [];
     for (let i = 0; i < size; i++) {
@@ -50,11 +48,12 @@ function Board({ size, rowLabels, columnLabels }) {
   // On downpress
   function OnClickFactory(row, col) {
     function OnClick() {
+      console.log("down");
       // if either one is currently held down, the opposite will cancel
-      if (isLeftSelecting || isRightSelecting) {
-        setIsLeftSelecting(false);
-        setIsRightSelecting(false);
+      if (selecting) {
+        setSelecting(false);
       } else {
+        setSelecting(true);
         setSelectionStart([row, col]); // set the selection start to the current cell
       }
     }
@@ -77,19 +76,29 @@ function Board({ size, rowLabels, columnLabels }) {
   }
 
   // Mark available cells as selected
-  function OnLeftClickRelease() {
+  function OnLeftClickRelease(event) {
+    console.log("left release");
     // make sure still in leftSelecting mode
-    if (isLeftSelecting) {
-      setCells(1);
+    if (selecting) {
+      if (event.button == 0) {
+        setCells(1);
+      } else if (event.button == 2) {
+        setCells(0);
+      }
+      setSelecting(false);
+      setSelectionStart([]);
     }
   }
 
   // Mark available cells as eliminated
   function OnRightClickRelease(event) {
     event.preventDefault();
+    console.log("right release");
     // make sure still in rightSelecting mode
-    if (isRightSelecting) {
+    if (selecting) {
       setCells(0);
+      setSelecting(false);
+      setSelectionStart([]);
     }
   }
 
@@ -100,17 +109,17 @@ function Board({ size, rowLabels, columnLabels }) {
     // Find the direction where the start and end is farthest
     if (maxDirection()) {
       // if in a row
-      col = selectionStart[1];
-      startRow = min(selectionStart[0], pointing[0]);
-      endRow = max(selectionStart[0], pointing[0]);
+      let col = selectionStart[1];
+      let startRow = Math.min(selectionStart[0], pointing[0]);
+      let endRow = Math.max(selectionStart[0], pointing[0]);
       for (let i = startRow; i <= endRow; i++) {
         copy[i][col] = type;
       }
     } else {
       // if in a column
-      row = selectionStart[0];
-      startCol = min(selectionStart[1], pointing[1]);
-      endCol = max(selectionStart[1], pointing[1]);
+      let row = selectionStart[0];
+      let startCol = Math.min(selectionStart[1], pointing[1]);
+      let endCol = Math.max(selectionStart[1], pointing[1]);
       for (let i = startCol; i <= endCol; i++) {
         copy[row][i] = type;
       }
@@ -128,6 +137,7 @@ function Board({ size, rowLabels, columnLabels }) {
       for (let j = 0; j < size; j++) {
         row.push(boardState[i][j]);
       }
+      copy.push(row);
     }
 
     return copy;
@@ -155,7 +165,7 @@ function Board({ size, rowLabels, columnLabels }) {
     // cells perpendicular to the pointed cell are guides
     // if not selecting, only the cell pointed at is hovered
     // all cells that share the same x/y with the pointing are guides
-    if (!isLeftSelecting && !isRightSelecting) {
+    if (!selecting) {
       // if not selecting, only the pointing gets to hover
       if (row == pointing[0] && col == pointing[1]) {
         classes += "hover";
@@ -167,7 +177,7 @@ function Board({ size, rowLabels, columnLabels }) {
       }
     } else {
       // if selecting
-      if (maxDirection) {
+      if (maxDirection()) {
         // if vertical, same column as start and between rows are hovered
         // same row as pointed is guide
         const minRow = Math.min(selectionStart[0], pointing[0]);
@@ -176,10 +186,10 @@ function Board({ size, rowLabels, columnLabels }) {
         if (col == selectionStart[1] && minRow <= row && row <= maxRow) {
           classes += "hover";
         } else if (boardState[row][col] == -1 && row == pointing[0]) {
-          classes += "hover";
+          classes += "guide";
         }
       } else {
-        // if horitontal, same row as start and between cols are hovered
+        // if horizontal, same row as start and between cols are hovered
         // save col as pointed is guide
         const minCol = Math.min(selectionStart[1], pointing[1]);
         const maxCol = Math.max(selectionStart[1], pointing[1]);
@@ -187,7 +197,7 @@ function Board({ size, rowLabels, columnLabels }) {
         if (row == selectionStart[0] && minCol <= col && col <= maxCol) {
           classes += "hover";
         } else if (boardState[row][col] == -1 && col == pointing[1]) {
-          classes += "hover";
+          classes += "guide";
         }
       }
     }
@@ -229,12 +239,11 @@ function Board({ size, rowLabels, columnLabels }) {
       }
       interleaved.push(element);
     });
-    console.log(interleaved);
     return interleaved;
   }
 
   return (
-    <table>
+    <table onMouseOut={OnUnhover}>
       <tbody>
         <tr>
           <td className="label"></td>
@@ -251,10 +260,9 @@ function Board({ size, rowLabels, columnLabels }) {
               <td
                 key={"cell" + String(index) + "-" + String(index2)}
                 className={getClasses(index, index2)}
-                onClick={OnLeftClickRelease}
+                onMouseUp={OnLeftClickRelease}
                 onMouseDown={OnClickFactory(index, index2)}
                 onMouseOver={OnHoverFactory(index, index2)}
-                onMouseOut={OnUnhover}
                 onContextMenu={OnRightClickRelease}
               ></td>
             ))}
