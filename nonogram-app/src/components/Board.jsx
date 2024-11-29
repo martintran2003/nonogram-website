@@ -45,9 +45,13 @@ function Board({ size, rowLabels, columnLabels }) {
     return colsSolved;
   });
 
+  /*
+    EVENT LISTENERS
+  */
+
   // On downpress
-  function OnClickFactory(row, col) {
-    function OnClick() {
+  function selectStartCell(row, col) {
+    function f() {
       console.log("down", row, col);
       // if either one is currently held down, the opposite will cancel
       if (selecting) {
@@ -58,25 +62,29 @@ function Board({ size, rowLabels, columnLabels }) {
       }
     }
 
-    return OnClick;
+    return f;
   }
 
   // When cell is hovered
-  function OnHoverFactory(row, col) {
-    function OnHover() {
+  function hoverCell(row, col) {
+    function f() {
       // set the pointing cell
       setPointing([row, col]);
     }
 
-    return OnHover;
+    return f;
   }
 
-  function OnUnhover() {
+  // resets state back to start and ends current selections/pointing
+  function resetState() {
+    console.log("unhover");
+    setSelectionStart([]);
+    setSelecting(false);
     setPointing([]);
   }
 
   // Mark available cells as selected
-  function OnLeftClickRelease(event) {
+  function performSelection(event) {
     // make sure still in leftSelecting mode
     if (selecting) {
       if (event.button == 0) {
@@ -86,21 +94,14 @@ function Board({ size, rowLabels, columnLabels }) {
         console.log("right release");
         setCells(0);
       }
-      setSelecting(false);
-      setSelectionStart([]);
+
+      resetState();
     }
   }
 
-  // Mark available cells as eliminated
-  function OnRightClickRelease(event) {
-    event.preventDefault();
-    // make sure still in rightSelecting mode
-    if (selecting) {
-      setCells(0);
-      setSelecting(false);
-      setSelectionStart([]);
-    }
-  }
+  /* 
+    HELPER FUNCTIONS
+  */
 
   // set cells from start cell to pointing cell
   function setCells(type) {
@@ -253,33 +254,44 @@ function Board({ size, rowLabels, columnLabels }) {
   }
 
   return (
-    <table onMouseOut={OnUnhover}>
-      <tbody>
-        <tr>
-          <td className="label"></td>
-          {columnLabels.map((colHints, index) => (
-            <td key={"columnlabel" + String(index)} className="label">
-              {getColHints(index)}
-            </td>
-          ))}
-        </tr>
-        {boardState.map((row, index) => (
-          <tr key={"row" + String(index)}>
-            <td className="label">{getRowHints(index)}</td>
-            {row.map((cell, index2) => (
+    <div
+      onContextMenu={(event) => {
+        event.preventDefault();
+      }}
+    >
+      <table onMouseLeave={resetState}>
+        <tbody>
+          <tr>
+            <td className="label" onMouseEnter={resetState}></td>
+            {columnLabels.map((colHints, index) => (
               <td
-                key={"cell" + String(index) + "-" + String(index2)}
-                className={getClasses(index, index2)}
-                onMouseUp={OnLeftClickRelease}
-                onMouseDown={OnClickFactory(index, index2)}
-                onMouseOver={OnHoverFactory(index, index2)}
-                onContextMenu={OnRightClickRelease}
-              ></td>
+                key={"columnlabel" + String(index)}
+                className="label"
+                onMouseEnter={resetState}
+              >
+                {getColHints(index)}
+              </td>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+          {boardState.map((row, index) => (
+            <tr key={"row" + String(index)}>
+              <td className="label" onMouseEnter={resetState}>
+                {getRowHints(index)}
+              </td>
+              {row.map((cell, index2) => (
+                <td
+                  key={"cell" + String(index) + "-" + String(index2)}
+                  className={getClasses(index, index2)}
+                  onMouseUp={performSelection}
+                  onMouseDown={selectStartCell(index, index2)}
+                  onMouseEnter={hoverCell(index, index2)}
+                ></td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
