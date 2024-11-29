@@ -53,6 +53,7 @@ function Board({ size, rowLabels, columnLabels }) {
   function selectStartCell(row, col) {
     function f() {
       console.log("down", row, col);
+      setPointing([row, col]);
       // if either one is currently held down, the opposite will cancel
       if (selecting) {
         setSelecting(false);
@@ -77,10 +78,14 @@ function Board({ size, rowLabels, columnLabels }) {
 
   // resets state back to start and ends current selections/pointing
   function resetState() {
-    console.log("unhover");
+    resetSelection();
+    setPointing([]);
+  }
+
+  // remove the selection
+  function resetSelection() {
     setSelectionStart([]);
     setSelecting(false);
-    setPointing([]);
   }
 
   // Mark available cells as selected
@@ -95,50 +100,13 @@ function Board({ size, rowLabels, columnLabels }) {
         setCells(0);
       }
 
-      resetState();
+      resetSelection();
     }
   }
 
   /* 
     HELPER FUNCTIONS
   */
-
-  // set cells from start cell to pointing cell
-  function setCells(type) {
-    const copy = copyBoardState();
-
-    // Find the direction where the start and end is farthest
-    if (maxDirection()) {
-      // if in a row
-      let col = selectionStart[1];
-      let startRow = Math.min(selectionStart[0], pointing[0]);
-      let endRow = Math.max(selectionStart[0], pointing[0]);
-      for (let i = startRow; i <= endRow; i++) {
-        if (copy[i][col] == type) {
-          // if same selection, flip
-          copy[i][col] = -1;
-        } else {
-          // if different, set to type
-          copy[i][col] = type;
-        }
-      }
-    } else {
-      // if in a column
-      let row = selectionStart[0];
-      let startCol = Math.min(selectionStart[1], pointing[1]);
-      let endCol = Math.max(selectionStart[1], pointing[1]);
-      for (let i = startCol; i <= endCol; i++) {
-        if (copy[row][i] == type) {
-          copy[row][i] = -1;
-        } else {
-          copy[row][i] = type;
-        }
-      }
-    }
-
-    // Set the new state
-    setBoardState(copy);
-  }
 
   // create a deep copy of the current board state
   function copyBoardState() {
@@ -162,6 +130,163 @@ function Board({ size, rowLabels, columnLabels }) {
     );
   }
 
+  /*
+    GAME FUNCTIONS
+  */
+
+  // set cells from start cell to pointing cell
+  function setCells(type) {
+    const copy = copyBoardState();
+
+    // Find the direction where the start and end is farthest
+    if (maxDirection()) {
+      // if in a column
+      let col = selectionStart[1];
+      let startRow = Math.min(selectionStart[0], pointing[0]);
+      let endRow = Math.max(selectionStart[0], pointing[0]);
+      for (let i = startRow; i <= endRow; i++) {
+        if (copy[i][col] == type) {
+          // if same selection, flip
+          copy[i][col] = -1;
+        } else {
+          // if different, set to type
+          copy[i][col] = type;
+        }
+      }
+    } else {
+      // if in a row
+      let row = selectionStart[0];
+      let startCol = Math.min(selectionStart[1], pointing[1]);
+      let endCol = Math.max(selectionStart[1], pointing[1]);
+      for (let i = startCol; i <= endCol; i++) {
+        if (copy[row][i] == type) {
+          copy[row][i] = -1;
+        } else {
+          copy[row][i] = type;
+        }
+      }
+    }
+
+    evaluateBoard(copy);
+
+    // Set the new state
+    setBoardState(copy);
+  }
+
+  // evaluates the row and checks for solved pieces and updates
+  function evaluateRow(board, row) {
+    // Get the pieces in the row
+    const pieces = [];
+    let currentPiece = 0;
+    for (let i = 0; i < size; i++) {
+      if (board[row][i] == 1) {
+        currentPiece++;
+      } else {
+        if (currentPiece > 0) {
+          pieces.push(currentPiece);
+          currentPiece = 0;
+        }
+      }
+    }
+    if (currentPiece > 0) {
+      pieces.push(currentPiece);
+    }
+
+    const solved = Array(rowLabels[row].length).fill(false);
+
+    // if there are more pieces than on the labels, don't evaluate the pieces
+    if (pieces.length > rowLabels[row].length) return solved;
+
+    // go forward and look for matching pieces
+    let forwardIndex = 0;
+    while (
+      forwardIndex < pieces.length &&
+      pieces[forwardIndex] == rowLabels[row][forwardIndex]
+    ) {
+      solved[forwardIndex] = true;
+      forwardIndex++;
+    }
+
+    // go backwards and look for matching pieces
+    // go up to the piece that the forward pass was not able to solve
+    let backwardIndex = 0;
+    while (
+      pieces.length - 1 - backwardIndex >= forwardIndex &&
+      pieces[pieces.length - 1 - backwardIndex] ==
+        rowLabels[row][rowLabels[row].length - 1 - backwardIndex]
+    ) {
+      solved[solved.length - 1 - backwardIndex] = true;
+      backwardIndex++;
+    }
+
+    return solved;
+  }
+
+  // evaluates the column and checks for solved pieces
+  function evaluateCol(board, col) {
+    // Get the pieces in the row
+    const pieces = [];
+    let currentPiece = 0;
+    for (let i = 0; i < size; i++) {
+      if (board[i][col] == 1) {
+        currentPiece++;
+      } else {
+        if (currentPiece > 0) {
+          pieces.push(currentPiece);
+          currentPiece = 0;
+        }
+      }
+    }
+    if (currentPiece > 0) {
+      pieces.push(currentPiece);
+    }
+
+    const solved = Array(columnLabels[col].length).fill(false);
+
+    // if there are more pieces than on the labels, don't evaluate the pieces
+    if (pieces.length > columnLabels[col].length) return solved;
+
+    // go forward and look for matching pieces
+    let forwardIndex = 0;
+    while (
+      forwardIndex < pieces.length &&
+      pieces[forwardIndex] == columnLabels[col][forwardIndex]
+    ) {
+      solved[forwardIndex] = true;
+      forwardIndex++;
+    }
+
+    // go backwards and look for matching pieces
+    // go up to the piece that the forward pass was not able to solve
+    let backwardIndex = 0;
+    while (
+      pieces.length - 1 - backwardIndex >= forwardIndex &&
+      pieces[pieces.length - 1 - backwardIndex] ==
+        columnLabels[col][columnLabels[col].length - 1 - backwardIndex]
+    ) {
+      solved[solved.length - 1 - backwardIndex] = true;
+      backwardIndex++;
+    }
+
+    return solved;
+  }
+
+  // evaluates the board and checks that all pieces are solved for
+  function evaluateBoard(board) {
+    const rowSolved = [];
+    const colSolved = [];
+
+    for (let i = 0; i < size; i++) {
+      rowSolved.push(evaluateRow(board, i));
+      colSolved.push(evaluateCol(board, i));
+    }
+
+    setRowLabelsSolved(rowSolved);
+    setColumnLabelsSolved(colSolved);
+  }
+  /*
+    DOM Helpers
+  */
   function getClasses(row, col) {
     let classes = "cell ";
     // evaluate marked cells
@@ -254,44 +379,43 @@ function Board({ size, rowLabels, columnLabels }) {
   }
 
   return (
-    <div
+    <table
+      onMouseLeave={resetState}
       onContextMenu={(event) => {
         event.preventDefault();
       }}
     >
-      <table onMouseLeave={resetState}>
-        <tbody>
-          <tr>
-            <td className="label" onMouseEnter={resetState}></td>
-            {columnLabels.map((colHints, index) => (
+      <tbody>
+        <tr>
+          <td className="label" onMouseEnter={resetState}></td>
+          {columnLabels.map((colHints, index) => (
+            <td
+              key={"columnlabel" + String(index)}
+              className="label"
+              onMouseEnter={resetState}
+            >
+              {getColHints(index)}
+            </td>
+          ))}
+        </tr>
+        {boardState.map((row, index) => (
+          <tr key={"row" + String(index)}>
+            <td className="label" onMouseEnter={resetState}>
+              {getRowHints(index)}
+            </td>
+            {row.map((cell, index2) => (
               <td
-                key={"columnlabel" + String(index)}
-                className="label"
-                onMouseEnter={resetState}
-              >
-                {getColHints(index)}
-              </td>
+                key={"cell" + String(index) + "-" + String(index2)}
+                className={getClasses(index, index2)}
+                onMouseUp={performSelection}
+                onMouseDown={selectStartCell(index, index2)}
+                onMouseEnter={hoverCell(index, index2)}
+              ></td>
             ))}
           </tr>
-          {boardState.map((row, index) => (
-            <tr key={"row" + String(index)}>
-              <td className="label" onMouseEnter={resetState}>
-                {getRowHints(index)}
-              </td>
-              {row.map((cell, index2) => (
-                <td
-                  key={"cell" + String(index) + "-" + String(index2)}
-                  className={getClasses(index, index2)}
-                  onMouseUp={performSelection}
-                  onMouseDown={selectStartCell(index, index2)}
-                  onMouseEnter={hoverCell(index, index2)}
-                ></td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
