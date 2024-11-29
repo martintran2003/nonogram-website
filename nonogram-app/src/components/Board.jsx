@@ -48,7 +48,7 @@ function Board({ size, rowLabels, columnLabels }) {
   // On downpress
   function OnClickFactory(row, col) {
     function OnClick() {
-      console.log("down");
+      console.log("down", row, col);
       // if either one is currently held down, the opposite will cancel
       if (selecting) {
         setSelecting(false);
@@ -77,12 +77,13 @@ function Board({ size, rowLabels, columnLabels }) {
 
   // Mark available cells as selected
   function OnLeftClickRelease(event) {
-    console.log("left release");
     // make sure still in leftSelecting mode
     if (selecting) {
       if (event.button == 0) {
+        console.log("left release");
         setCells(1);
       } else if (event.button == 2) {
+        console.log("right release");
         setCells(0);
       }
       setSelecting(false);
@@ -93,7 +94,6 @@ function Board({ size, rowLabels, columnLabels }) {
   // Mark available cells as eliminated
   function OnRightClickRelease(event) {
     event.preventDefault();
-    console.log("right release");
     // make sure still in rightSelecting mode
     if (selecting) {
       setCells(0);
@@ -113,7 +113,13 @@ function Board({ size, rowLabels, columnLabels }) {
       let startRow = Math.min(selectionStart[0], pointing[0]);
       let endRow = Math.max(selectionStart[0], pointing[0]);
       for (let i = startRow; i <= endRow; i++) {
-        copy[i][col] = type;
+        if (copy[i][col] == type) {
+          // if same selection, flip
+          copy[i][col] = -1;
+        } else {
+          // if different, set to type
+          copy[i][col] = type;
+        }
       }
     } else {
       // if in a column
@@ -121,7 +127,11 @@ function Board({ size, rowLabels, columnLabels }) {
       let startCol = Math.min(selectionStart[1], pointing[1]);
       let endCol = Math.max(selectionStart[1], pointing[1]);
       for (let i = startCol; i <= endCol; i++) {
-        copy[row][i] = type;
+        if (copy[row][i] == type) {
+          copy[row][i] = -1;
+        } else {
+          copy[row][i] = type;
+        }
       }
     }
 
