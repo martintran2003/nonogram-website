@@ -130,6 +130,10 @@ function Board({ size, rowLabels, columnLabels }) {
     );
   }
 
+  function boardColumn(board, col) {
+    return board.map((x) => x[col]);
+  }
+
   /*
     GAME FUNCTIONS
   */
@@ -175,48 +179,40 @@ function Board({ size, rowLabels, columnLabels }) {
 
   // evaluates the row and checks for solved pieces and updates
   function evaluateRow(board, row) {
-    // Get the pieces in the row
-    const pieces = [];
-    let currentPiece = 0;
-    for (let i = 0; i < size; i++) {
-      if (board[row][i] == 1) {
-        currentPiece++;
-      } else {
-        if (currentPiece > 0) {
-          pieces.push(currentPiece);
-          currentPiece = 0;
-        }
-      }
-    }
-    if (currentPiece > 0) {
-      pieces.push(currentPiece);
-    }
+    // Generate the possible positions for the pieces based on the row state
+    const possiblePositions = generatePossiblePositions(
+      rowLabels[row],
+      board[row]
+    );
 
+    // If all the positions have a piece in the same spot, that piece is solved
     const solved = Array(rowLabels[row].length).fill(false);
 
-    // if there are more pieces than on the labels, don't evaluate the pieces
-    if (pieces.length > rowLabels[row].length) return solved;
-
-    // go forward and look for matching pieces
-    let forwardIndex = 0;
-    while (
-      forwardIndex < pieces.length &&
-      pieces[forwardIndex] == rowLabels[row][forwardIndex]
-    ) {
-      solved[forwardIndex] = true;
-      forwardIndex++;
+    if (possiblePositions.length == 0) {
+      return solved;
     }
+    // iterate through each piece and check if all pieces starting locations are equal
+    for (let pieceIndex = 0; pieceIndex < rowLabels[row].length; pieceIndex++) {
+      let flag = false;
+      const placement = possiblePositions[0][pieceIndex];
+      for (let posIndex = 0; posIndex < possiblePositions.length; posIndex++) {
+        if (placement != possiblePositions[posIndex][pieceIndex]) {
+          flag = true;
+          break;
+        }
+      }
+      if (flag) continue;
 
-    // go backwards and look for matching pieces
-    // go up to the piece that the forward pass was not able to solve
-    let backwardIndex = 0;
-    while (
-      pieces.length - 1 - backwardIndex >= forwardIndex &&
-      pieces[pieces.length - 1 - backwardIndex] ==
-        rowLabels[row][rowLabels[row].length - 1 - backwardIndex]
-    ) {
-      solved[solved.length - 1 - backwardIndex] = true;
-      backwardIndex++;
+      // if all are equal, also check if the cells of the piece are marked (avoids premptively marking solved)
+      for (let i = placement; i < placement + rowLabels[row][pieceIndex]; i++) {
+        if (board[row][i] != 1) {
+          flag = true;
+          break;
+        }
+      }
+      if (flag) continue;
+
+      solved[pieceIndex] = true;
     }
 
     return solved;
@@ -224,48 +220,48 @@ function Board({ size, rowLabels, columnLabels }) {
 
   // evaluates the column and checks for solved pieces
   function evaluateCol(board, col) {
-    // Get the pieces in the row
-    const pieces = [];
-    let currentPiece = 0;
-    for (let i = 0; i < size; i++) {
-      if (board[i][col] == 1) {
-        currentPiece++;
-      } else {
-        if (currentPiece > 0) {
-          pieces.push(currentPiece);
-          currentPiece = 0;
-        }
-      }
-    }
-    if (currentPiece > 0) {
-      pieces.push(currentPiece);
-    }
+    // Generate the possible positions for the pieces based on the row state
+    const possiblePositions = generatePossiblePositions(
+      columnLabels[col],
+      boardColumn(board, col)
+    );
 
+    // If all the positions have a piece in the same spot, that piece is solved
     const solved = Array(columnLabels[col].length).fill(false);
 
-    // if there are more pieces than on the labels, don't evaluate the pieces
-    if (pieces.length > columnLabels[col].length) return solved;
-
-    // go forward and look for matching pieces
-    let forwardIndex = 0;
-    while (
-      forwardIndex < pieces.length &&
-      pieces[forwardIndex] == columnLabels[col][forwardIndex]
-    ) {
-      solved[forwardIndex] = true;
-      forwardIndex++;
+    if (possiblePositions.length == 0) {
+      return solved;
     }
-
-    // go backwards and look for matching pieces
-    // go up to the piece that the forward pass was not able to solve
-    let backwardIndex = 0;
-    while (
-      pieces.length - 1 - backwardIndex >= forwardIndex &&
-      pieces[pieces.length - 1 - backwardIndex] ==
-        columnLabels[col][columnLabels[col].length - 1 - backwardIndex]
+    // iterate through each piece and check if all pieces starting locations are equal
+    for (
+      let pieceIndex = 0;
+      pieceIndex < columnLabels[col].length;
+      pieceIndex++
     ) {
-      solved[solved.length - 1 - backwardIndex] = true;
-      backwardIndex++;
+      let flag = false;
+      const placement = possiblePositions[0][pieceIndex];
+      for (let posIndex = 0; posIndex < possiblePositions.length; posIndex++) {
+        if (placement != possiblePositions[posIndex][pieceIndex]) {
+          flag = true;
+          break;
+        }
+      }
+      if (flag) continue;
+
+      // if all are equal, also check if the cells of the piece are marked (avoids premptively marking solved)
+      for (
+        let i = placement;
+        i < placement + columnLabels[col][pieceIndex];
+        i++
+      ) {
+        if (board[i][col] != 1) {
+          flag = true;
+          break;
+        }
+      }
+      if (flag) continue;
+
+      solved[pieceIndex] = true;
     }
 
     return solved;
@@ -284,6 +280,77 @@ function Board({ size, rowLabels, columnLabels }) {
     setRowLabelsSolved(rowSolved);
     setColumnLabelsSolved(colSolved);
   }
+
+  // Given the pieces required and state of the row/Col, return the possible positions for the pieces
+  function generatePossiblePositions(pieceSizes, state) {
+    const size = state.length;
+    const positions = [];
+
+    const sum = (arr = []) => arr.reduce((total, val) => total + val, 0);
+
+    // Iterate through possible placements of all of the pieces
+    const stack = [[0, 0, sum(pieceSizes) + pieceSizes.length - 1, []]];
+
+    let pieceIndex, start, minReq, pieces;
+    while (stack.length > 0) {
+      [pieceIndex, start, minReq, pieces] = stack.pop();
+
+      if (pieceIndex == pieceSizes.length) {
+        // If all pieces are placed, make sure that none of the trailing cells are selected
+        let flag = false;
+        for (let i = start; i < size; i++) {
+          if (state[i] == 1) {
+            flag = true;
+            break;
+          }
+        }
+        if (flag) continue;
+
+        // Place the arrangements of pieces into the valid positions
+        positions.push(pieces);
+      } else {
+        // Find the possible starting positions of the pieces
+        // If there is a selected cell, that must be the start of the next piece only
+        let pos = start - 1;
+        while (++pos <= size - minReq) {
+          let flag = false;
+
+          // Check cells where piece would be if there is an eliminated cell
+          for (let i = 0; i < pieceSizes[pieceIndex]; i++) {
+            if (state[pos + i] == 0) {
+              flag = true;
+              break;
+            }
+          }
+          if (flag) continue;
+
+          // Check bounds are not selected as pieces
+          if (pos > 0 && state[pos - 1] == 1) continue;
+          if (
+            pos + pieceSizes[pieceIndex] < size &&
+            state[pos + pieceSizes[pieceIndex]] == 1
+          )
+            continue;
+
+          // Once validated, add the piece at pos and try to find the next piece
+          stack.push([
+            pieceIndex + 1,
+            pos + pieceSizes[pieceIndex] + 1,
+            minReq - pieceSizes[pieceIndex] - 1,
+            pieces.concat([pos]),
+          ]);
+
+          // if the cell was selected, we can't place the piece any later
+          if (state[pos] == 1) {
+            break;
+          }
+        }
+      }
+    }
+
+    return positions;
+  }
+
   /*
     DOM Helpers
   */
