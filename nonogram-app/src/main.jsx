@@ -4,12 +4,14 @@ import "./index.css";
 import App from "./App.jsx";
 import Board from "./components/Board.jsx";
 
-var size = 5;
-const cols = [[1, 1], [2, 1], [1, 1], [1], []];
-const rows = [[2], [1, 1], [1], [], [3]];
+const { rowHints, colHints, rows, cols } = await fetch(
+  "http://localhost:8000/randomproblem"
+)
+  .then((res) => res.json())
+  .then((data) => JSON.parse(data));
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <App />
-    <Board size={size} rowLabels={rows} columnLabels={cols} />
+    <Board size={rows} rowLabels={rowHints} columnLabels={colHints} />
   </StrictMode>
 );
