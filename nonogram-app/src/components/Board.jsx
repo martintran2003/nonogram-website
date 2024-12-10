@@ -1,11 +1,11 @@
 import { useState } from "react";
 import "./Board.css";
-function Board({ size, rowLabels, columnLabels }) {
+function Board({ rows, cols, rowLabels, columnLabels }) {
   const [boardState, setBoardState] = useState(() => {
     const initBoard = [];
-    for (let row = 0; row < size; row++) {
+    for (let row = 0; row < rows; row++) {
       const boardRow = [];
-      for (let col = 0; col < size; col++) {
+      for (let col = 0; col < cols; col++) {
         boardRow.push(-1);
       }
       initBoard.push(boardRow);
@@ -19,7 +19,7 @@ function Board({ size, rowLabels, columnLabels }) {
 
   const [rowLabelsSolved, setRowLabelsSolved] = useState(() => {
     const rowsSolved = [];
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < rows; i++) {
       const row = [];
 
       for (let j = 0; j < rowLabels[i].length; j++) {
@@ -33,7 +33,7 @@ function Board({ size, rowLabels, columnLabels }) {
   const [columnLabelsSolved, setColumnLabelsSolved] = useState(() => {
     const colsSolved = [];
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < cols; i++) {
       const col = [];
 
       for (let j = 0; j < columnLabels[i].length; j++) {
@@ -111,9 +111,9 @@ function Board({ size, rowLabels, columnLabels }) {
   // create a deep copy of the current board state
   function copyBoardState() {
     const copy = [];
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < rows; i++) {
       const row = [];
-      for (let j = 0; j < size; j++) {
+      for (let j = 0; j < cols; j++) {
         row.push(boardState[i][j]);
       }
       copy.push(row);
@@ -226,6 +226,7 @@ function Board({ size, rowLabels, columnLabels }) {
       boardColumn(board, col)
     );
 
+    console.log(col, possiblePositions);
     // If all the positions have a piece in the same spot, that piece is solved
     const solved = Array(columnLabels[col].length).fill(false);
 
@@ -272,8 +273,11 @@ function Board({ size, rowLabels, columnLabels }) {
     const rowSolved = [];
     const colSolved = [];
 
-    for (let i = 0; i < size; i++) {
+    for (let i = 0; i < rows; i++) {
       rowSolved.push(evaluateRow(board, i));
+    }
+
+    for (let i = 0; i < cols; i++) {
       colSolved.push(evaluateCol(board, i));
     }
 
@@ -311,8 +315,9 @@ function Board({ size, rowLabels, columnLabels }) {
       } else {
         // Find the possible starting positions of the pieces
         // If there is a selected cell, that must be the start of the next piece only
+        // If the previous cell was selected, then the piece must start there, so stop searching
         let pos = start - 1;
-        while (++pos <= size - minReq) {
+        while (++pos <= size - minReq && (pos == 0 || state[pos - 1] != 1)) {
           let flag = false;
 
           // Check cells where piece would be if there is an eliminated cell
@@ -339,11 +344,6 @@ function Board({ size, rowLabels, columnLabels }) {
             minReq - pieceSizes[pieceIndex] - 1,
             pieces.concat([pos]),
           ]);
-
-          // if the cell was selected, we can't place the piece any later
-          if (state[pos] == 1) {
-            break;
-          }
         }
       }
     }
