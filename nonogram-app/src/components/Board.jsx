@@ -1,50 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import "./Board.css";
-function Board({ rows, cols, rowLabels, columnLabels }) {
-  const [boardState, setBoardState] = useState(() => {
-    const initBoard = [];
-    for (let row = 0; row < rows; row++) {
-      const boardRow = [];
-      for (let col = 0; col < cols; col++) {
-        boardRow.push(-1);
-      }
-      initBoard.push(boardRow);
-    }
-    return initBoard;
-  });
+function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
+  const [rows, setRows] = useState(0);
+  const [cols, setCols] = useState(0);
 
+  const [rowLabels, setRowLabels] = useState([]);
+  const [columnLabels, setColumnLabels] = useState([]);
+
+  const [boardState, setBoardState] = useState([]);
   const [selecting, setSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState([]);
   const [pointing, setPointing] = useState([]);
 
-  const [rowLabelsSolved, setRowLabelsSolved] = useState(() => {
-    const rowsSolved = [];
-    for (let i = 0; i < rows; i++) {
-      const row = [];
+  const [rowLabelsSolved, setRowLabelsSolved] = useState([]);
+  const [columnLabelsSolved, setColumnLabelsSolved] = useState([]);
 
-      for (let j = 0; j < rowLabels[i].length; j++) {
-        row.push(false);
-      }
+  useEffect(() => {
+    console.log(
+      "updating board state",
+      rowCount,
+      colCount,
+      rowLabelsProp,
+      columnLabelsProp
+    );
 
-      rowsSolved.push(row);
-    }
-    return rowsSolved;
-  });
-  const [columnLabelsSolved, setColumnLabelsSolved] = useState(() => {
-    const colsSolved = [];
+    setRows(rowCount);
+    setCols(colCount);
+    setRowLabels(rowLabelsProp);
+    setColumnLabels(columnLabelsProp);
+    setBoardState(initBoard(rowCount, colCount));
+    setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
+    setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
+  }, [rowCount, colCount, rowLabelsProp, columnLabelsProp]);
 
-    for (let i = 0; i < cols; i++) {
-      const col = [];
-
-      for (let j = 0; j < columnLabels[i].length; j++) {
-        col.push(false);
-      }
-
-      colsSolved.push(col);
-    }
-    return colsSolved;
-  });
-
+  console.log(
+    "render board",
+    rows,
+    cols,
+    boardState,
+    rowLabelsSolved,
+    rowLabels,
+    columnLabelsSolved,
+    columnLabels
+  );
   /*
     EVENT LISTENERS
   */
@@ -134,8 +132,50 @@ function Board({ rows, cols, rowLabels, columnLabels }) {
     return board.map((x) => x[col]);
   }
 
+  function initBoard(rows, cols) {
+    const initBoard = [];
+    for (let row = 0; row < rows; row++) {
+      const boardRow = [];
+      for (let col = 0; col < cols; col++) {
+        boardRow.push(-1);
+      }
+      initBoard.push(boardRow);
+    }
+    return initBoard;
+  }
+
+  function initRowsSolved(rows, rowLabels) {
+    const rowsSolved = [];
+    for (let i = 0; i < rows; i++) {
+      const row = [];
+
+      for (let j = 0; j < rowLabels[i].length; j++) {
+        row.push(false);
+      }
+
+      rowsSolved.push(row);
+    }
+
+    console.log(rowLabels, rowsSolved);
+    return rowsSolved;
+  }
+
+  function initColsSolved(cols, columnLabels) {
+    const colsSolved = [];
+
+    for (let i = 0; i < cols; i++) {
+      const col = [];
+
+      for (let j = 0; j < columnLabels[i].length; j++) {
+        col.push(false);
+      }
+
+      colsSolved.push(col);
+    }
+    return colsSolved;
+  }
   /*
-    GAME FUNCTIONS
+    GAMEPLAY FUNCTIONS
   */
 
   // set cells from start cell to pointing cell
@@ -226,7 +266,6 @@ function Board({ rows, cols, rowLabels, columnLabels }) {
       boardColumn(board, col)
     );
 
-    console.log(col, possiblePositions);
     // If all the positions have a piece in the same spot, that piece is solved
     const solved = Array(columnLabels[col].length).fill(false);
 
@@ -455,7 +494,7 @@ function Board({ rows, cols, rowLabels, columnLabels }) {
       <tbody>
         <tr>
           <td className="label" onMouseEnter={resetState}></td>
-          {columnLabels.map((colHints, index) => (
+          {columnLabels.map((_, index) => (
             <td
               key={"columnlabel" + String(index)}
               className="label"

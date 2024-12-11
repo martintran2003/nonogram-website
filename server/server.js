@@ -5,10 +5,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/message", (req, res) => {
-  res.json({ message: "Hello from server!" });
-});
-
 app.get("/randomproblem", (req, res) => {
   const seed = Date.now();
   // https://stackoverflow.com/questions/23450534/how-to-call-a-python-function-from-node-js
