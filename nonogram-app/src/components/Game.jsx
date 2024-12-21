@@ -1,4 +1,5 @@
 import Board from "./Board.jsx";
+import Selector from "./Selector.jsx";
 import { useState, useEffect } from "react";
 
 function Game() {
@@ -7,32 +8,39 @@ function Game() {
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
 
-  useEffect(() => {
+  function updateBoard(row, col) {
     async function getProblem() {
-      const { rowHints, colHints, rows, cols } = await fetch(
-        "http://localhost:8000/randomproblem"
+      const { rowHints, colHints } = await fetch(
+        "http://localhost:8000/randomproblem?" +
+          new URLSearchParams({
+            rows: row,
+            cols: col,
+          })
       )
         .then((res) => res.json())
         .then((data) => JSON.parse(data));
 
       setRowHints(rowHints);
       setColHints(colHints);
-      setRows(rows);
-      setCols(cols);
+      setRows(row);
+      setCols(col);
 
       console.log("received problem");
     }
     getProblem();
-  }, []);
+  }
 
   console.log("rendering game", rows, cols, rowHints, colHints);
   return (
-    <Board
-      rowCount={rows}
-      colCount={cols}
-      rowLabelsProp={rowHints}
-      columnLabelsProp={colHints}
-    />
+    <>
+      <Selector rows={rows} cols={cols} updateBoard={updateBoard} />
+      <Board
+        rowCount={rows}
+        colCount={cols}
+        rowLabelsProp={rowHints}
+        columnLabelsProp={colHints}
+      />
+    </>
   );
 }
 
