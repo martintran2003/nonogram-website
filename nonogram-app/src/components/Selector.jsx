@@ -1,5 +1,14 @@
+import { useEffect, useState } from "react";
 // Component that selects the rows and columns of the board
 function Selector({ rows, cols, updateBoard }) {
+  const [currentRows, setCurrentRows] = useState(rows);
+  const [currentCols, setCurrentCols] = useState(cols);
+
+  useEffect(() => {
+    setCurrentRows(rows);
+    setCurrentCols(cols);
+  }, [rows, cols]);
+
   function sumbitNewBoard(event) {
     event.preventDefault();
     updateBoard(event.target.rows.value, event.target.cols.value);
@@ -15,7 +24,10 @@ function Selector({ rows, cols, updateBoard }) {
           name="rows"
           min="1"
           max="20"
-          placeholder={rows}
+          value={currentRows}
+          onChange={(event) => {
+            setCurrentRows(event.target.value);
+          }}
         ></input>
         <label htmlFor="cols">Columns</label>
         <input
@@ -24,7 +36,10 @@ function Selector({ rows, cols, updateBoard }) {
           name="cols"
           min="1"
           max="20"
-          placeholder={cols}
+          value={currentCols}
+          onChange={(event) => {
+            setCurrentCols(event.target.value);
+          }}
         ></input>
         <input type="submit" />
       </form>

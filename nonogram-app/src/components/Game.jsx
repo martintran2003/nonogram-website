@@ -1,42 +1,61 @@
 import Board from "./Board.jsx";
 import Selector from "./Selector.jsx";
 import { useState, useEffect } from "react";
+import SolveMessage from "./SolveMessage.jsx";
 
 function Game() {
   const [rowHints, setRowHints] = useState([]);
   const [colHints, setColHints] = useState([]);
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
+  const [solved, setSolved] = useState(false);
+  const [playable, setPlayable] = useState(false);
+  const [startTime, setStartTime] = useState(0);
+  const [endTime, setEndTime] = useState(0);
 
   // Initialize a 10x10 board
   useEffect(() => {
     updateBoard(10, 10);
   }, []);
 
-  // update and fetch a new board
-  function updateBoard(row, col) {
-    async function getProblem() {
-      const { rowHints, colHints } = await fetch(
-        "http://localhost:8000/randomproblem?" +
-          new URLSearchParams({
-            rows: row,
-            cols: col,
-          })
-      )
-        .then((res) => res.json())
-        .then((data) => JSON.parse(data));
-
-      setRowHints(rowHints);
-      setColHints(colHints);
-      setRows(row);
-      setCols(col);
-
-      console.log("received problem");
+  useEffect(() => {
+    if (solved) {
+      setPlayable(false);
     }
-    getProblem();
+  }, [solved]);
+
+  // update and fetch a new board
+  async function updateBoard(row, col) {
+    const { rowHints, colHints } = await fetch(
+      "http://localhost:8000/randomproblem?" +
+        new URLSearchParams({
+          rows: row,
+          cols: col,
+        })
+    )
+      .then((res) => res.json())
+      .then((data) => JSON.parse(data));
+
+    setRowHints(rowHints);
+    setColHints(colHints);
+    setRows(row);
+    setCols(col);
+    setSolved(false);
+
+    setPlayable(true);
+
+    setStartTime(Date.now());
   }
 
-  console.log("rendering game", rows, cols, rowHints, colHints);
+  function newGame() {
+    updateBoard(rows, cols);
+  }
+
+  function solve() {
+    setSolved(true);
+    setEndTime(Date.now());
+  }
+
   return (
     <>
       <Selector rows={rows} cols={cols} updateBoard={updateBoard} />
@@ -45,7 +64,13 @@ function Game() {
         colCount={cols}
         rowLabelsProp={rowHints}
         columnLabelsProp={colHints}
+        solved={solved}
+        updateSolved={solve}
+        playable={playable}
       />
+      {solved && (
+        <SolveMessage solveTime={endTime - startTime} newGame={newGame} />
+      )}
     </>
   );
 }

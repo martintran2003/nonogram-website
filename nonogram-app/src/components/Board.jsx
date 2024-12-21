@@ -1,8 +1,14 @@
 import { useEffect, useState, useMemo } from "react";
 import "./Board.css";
-function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
-  const [solved, setSolved] = useState(false);
-
+function Board({
+  rowCount,
+  colCount,
+  rowLabelsProp,
+  columnLabelsProp,
+  solved,
+  updateSolved,
+  playable,
+}) {
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
 
@@ -18,14 +24,6 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
   const [columnLabelsSolved, setColumnLabelsSolved] = useState([]);
 
   useEffect(() => {
-    console.log(
-      "updating board state",
-      rowCount,
-      colCount,
-      rowLabelsProp,
-      columnLabelsProp
-    );
-
     setRows(rowCount);
     setCols(colCount);
     setRowLabels(rowLabelsProp);
@@ -33,19 +31,8 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
     setBoardState(initBoard(rowCount, colCount));
     setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
     setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
-    setSolved(false);
   }, [rowCount, colCount, rowLabelsProp, columnLabelsProp]);
 
-  console.log(
-    "render board",
-    rows,
-    cols,
-    boardState,
-    rowLabelsSolved,
-    rowLabels,
-    columnLabelsSolved,
-    columnLabels
-  );
   /*
     EVENT LISTENERS
   */
@@ -53,7 +40,6 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
   // On downpress
   function selectStartCell(row, col) {
     function f() {
-      console.log("down", row, col);
       setPointing([row, col]);
       // if either one is currently held down, the opposite will cancel
       if (selecting) {
@@ -159,7 +145,6 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
       rowsSolved.push(row);
     }
 
-    console.log(rowLabels, rowsSolved);
     return rowsSolved;
   }
 
@@ -325,9 +310,7 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
 
     // Check if the nonogram is solved
     if (checkWin(rowSolved, colSolved)) {
-      setSolved(true);
-    } else {
-      setSolved(false);
+      updateSolved();
     }
 
     setRowLabelsSolved(rowSolved);
@@ -504,9 +487,13 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
 
   return (
     <div className="board">
-      {solved && <div className="complete-message">Solved</div>}
       <table
-        className={"table" + (solved ? " solved" : "")}
+        className={
+          "table" +
+          (solved ? " solved" : "") +
+          " " +
+          (playable ? "" : "unplayable")
+        }
         onMouseLeave={resetState}
         onContextMenu={(event) => {
           event.preventDefault();
