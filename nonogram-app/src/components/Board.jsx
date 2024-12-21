@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import "./Board.css";
 function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
+  const [solved, setSolved] = useState(false);
+
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
 
@@ -31,6 +33,7 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
     setBoardState(initBoard(rowCount, colCount));
     setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
     setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
+    setSolved(false);
   }, [rowCount, colCount, rowLabelsProp, columnLabelsProp]);
 
   console.log(
@@ -320,8 +323,23 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
       colSolved.push(evaluateCol(board, i));
     }
 
+    // Check if the nonogram is solved
+    if (checkWin(rowSolved, colSolved)) {
+      setSolved(true);
+    } else {
+      setSolved(false);
+    }
+
     setRowLabelsSolved(rowSolved);
     setColumnLabelsSolved(colSolved);
+  }
+
+  // check that all pieces are won
+  function checkWin(rowSolved, colSolved) {
+    return (
+      rowSolved.every((row) => row.every((piece) => piece)) &&
+      colSolved.every((col) => col.every((piece) => piece))
+    );
   }
 
   // Given the pieces required and state of the row/Col, return the possible positions for the pieces
@@ -485,43 +503,47 @@ function Board({ rowCount, colCount, rowLabelsProp, columnLabelsProp }) {
   }
 
   return (
-    <table
-      onMouseLeave={resetState}
-      onContextMenu={(event) => {
-        event.preventDefault();
-      }}
-    >
-      <tbody>
-        <tr>
-          <td className="label" onMouseEnter={resetState}></td>
-          {columnLabels.map((_, index) => (
-            <td
-              key={"columnlabel" + String(index)}
-              className="label"
-              onMouseEnter={resetState}
-            >
-              {getColHints(index)}
-            </td>
-          ))}
-        </tr>
-        {boardState.map((row, index) => (
-          <tr key={"row" + String(index)}>
-            <td className="label" onMouseEnter={resetState}>
-              {getRowHints(index)}
-            </td>
-            {row.map((cell, index2) => (
+    <div className="board">
+      {solved && <div className="complete-message">Solved</div>}
+      <table
+        className={"table" + (solved ? " solved" : "")}
+        onMouseLeave={resetState}
+        onContextMenu={(event) => {
+          event.preventDefault();
+        }}
+      >
+        <tbody>
+          <tr>
+            <td className="label" onMouseEnter={resetState}></td>
+            {columnLabels.map((_, index) => (
               <td
-                key={"cell" + String(index) + "-" + String(index2)}
-                className={getClasses(index, index2)}
-                onMouseUp={performSelection}
-                onMouseDown={selectStartCell(index, index2)}
-                onMouseEnter={hoverCell(index, index2)}
-              ></td>
+                key={"columnlabel" + String(index)}
+                className="label"
+                onMouseEnter={resetState}
+              >
+                {getColHints(index)}
+              </td>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+          {boardState.map((row, index) => (
+            <tr key={"row" + String(index)}>
+              <td className="label" onMouseEnter={resetState}>
+                {getRowHints(index)}
+              </td>
+              {row.map((cell, index2) => (
+                <td
+                  key={"cell" + String(index) + "-" + String(index2)}
+                  className={getClasses(index, index2)}
+                  onMouseUp={performSelection}
+                  onMouseDown={selectStartCell(index, index2)}
+                  onMouseEnter={hoverCell(index, index2)}
+                ></td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

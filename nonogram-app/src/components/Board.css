@@ -1,3 +1,4 @@
+
 .cell {
   background-color: white;
   border: 0.5px solid black;
@@ -17,12 +18,54 @@ table {
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
 }
-.guide {background-color: greenyellow;}
+.guide {
+  background-color: rgb(230, 255, 192);
+}
 
-.hover {background-color: green;}
+.hover {
+  background-color: rgb(154, 255, 131);
+  box-shadow: 0 0 6px 2px rgb(0, 168, 0) inset;
+}
 
-.selected {background-color: aqua;}
+.selected {
+  background-color: rgb(101, 209, 255);
+}
 
 .eliminated {
-  background-color: gray;
+  background-color: rgb(160, 160, 160);
+}
+
+.solved {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.complete-message{
+  position: absolute;
+  font-size: 500%;
+
+  padding: 10px 20px;
+  opacity: 0.7;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: white;
+  border-radius: 10px;
+  color: black;
+
+  z-index: 2;
+}
+
+.table {
+  z-index: 1;
+}
+
+.board {
+  position:relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

@@ -8,6 +8,12 @@ function Game() {
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
 
+  // Initialize a 10x10 board
+  useEffect(() => {
+    updateBoard(10, 10);
+  }, []);
+
+  // update and fetch a new board
   function updateBoard(row, col) {
     async function getProblem() {
       const { rowHints, colHints } = await fetch(
