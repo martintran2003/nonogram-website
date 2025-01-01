@@ -10,7 +10,8 @@ function SolveMessage({ solveTime, newGame }) {
     "." +
     (milliseconds < 100 ? "0" : "") +
     (milliseconds < 10 ? "0" : "") +
-    milliseconds;
+    milliseconds +
+    (minutes == 0 ? "s" : "");
   return (
     <div>
       You solved the puzzle in {timeStr}

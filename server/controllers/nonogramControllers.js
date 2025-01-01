@@ -1,3 +1,6 @@
+const { query } = require("express");
+const db = require("../db/queries");
+
 // generate a random nonogram using the provided query values for row and col
 function generateRandomNonogram(req, res) {
   let rows, cols;
@@ -31,4 +34,12 @@ function generateRandomNonogram(req, res) {
   });
 }
 
-module.exports = { generateRandomNonogram };
+async function getDailyNonogram(req, res) {
+  // get the result from the query for the daily nonogram
+  const queryResult = await db.getDailyNonogram10x10("1-1-2025");
+
+  console.log("Successful query");
+  res.json(queryResult[0]);
+}
+
+module.exports = { generateRandomNonogram, getDailyNonogram };

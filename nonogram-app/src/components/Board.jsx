@@ -450,7 +450,7 @@ function Board({
   function getRowHints(row) {
     const rowsSolved = rowLabels[row].map((item, index) => {
       return rowLabelsSolved[row][index] ? (
-        <em>{String(item)}</em>
+        <em key={"rowhint" + row + "-" + index}>{String(item)}</em>
       ) : (
         String(item)
       );
@@ -469,7 +469,7 @@ function Board({
   function getColHints(col) {
     const colsSolved = columnLabels[col].map((item, index) => {
       return columnLabelsSolved[col][index] ? (
-        <em>{String(item)}</em>
+        <em key={"colhint" + col + "-" + index}>{String(item)}</em>
       ) : (
         String(item)
       );
@@ -504,7 +504,7 @@ function Board({
             <td className="label" onMouseEnter={resetState}></td>
             {columnLabels.map((_, index) => (
               <td
-                key={"columnlabel" + String(index)}
+                key={"columnlabel-" + String(index)}
                 className="label"
                 onMouseEnter={resetState}
               >
