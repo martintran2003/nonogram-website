@@ -33,7 +33,7 @@ async function getDailyNonogram10x10(date) {
       .find({ date: date }, { projection: { _id: 0 } })
       .toArray();
   } finally {
-    await client.close();
+    // await client.close();
   }
 
   return result;
