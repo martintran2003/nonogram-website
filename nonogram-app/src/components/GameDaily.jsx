@@ -12,9 +12,11 @@ function GameDaily() {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
 
+  const [received, setReceived] = useState(false); // whether or not the problem has been received from server yet
+
   // Initialize a 10x10 board
   useEffect(() => {
-    updateBoard(10, 10);
+    getDailyProblem();
   }, []);
 
   useEffect(() => {
@@ -24,15 +26,20 @@ function GameDaily() {
   }, [solved]);
 
   // update and fetch a new board
-  async function updateBoard(row, col) {
-    const { rowHints, colHints } = await fetch(
-      "http://localhost:8000/dailyproblem"
-    ).then((res) => res.json());
+  async function getDailyProblem() {
+    const result = await fetch("http://localhost:8000/dailyproblem").then(
+      (res) => res.json()
+    );
+    if (result == null) {
+      console.log("No problem was found for today");
+      return;
+    }
+    const { rows, cols, rowHints, colHints } = result;
 
     setRowHints(rowHints);
     setColHints(colHints);
-    setRows(row);
-    setCols(col);
+    setRows(rows);
+    setCols(cols);
     setSolved(false);
 
     setPlayable(true);
