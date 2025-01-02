@@ -1,61 +1,112 @@
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const client = require("./client");
 require("dotenv").config();
-
-const uri = process.env.DATABASE_CONNECTION;
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
 
 const db = client.db(process.env.DATABASE_NAME_DAILY);
 const collection = db.collection(process.env.COLLECTION_NAME_DAILY);
 
-async function getDailyNonogram10x10(date) {
+/*
+    CORE QUERIES
+*/
+
+// reads the document that contains the date, rows, and cols
+// throws error if fails to read
+async function readDailyNonogram(date, rows, cols) {
   let result = null;
   try {
-    // get the current date
-    // const date = new Date();
-    // let day = date.getDate();
-    // let month = date.getMonth() + 1;
-    // let year = date.getFullYear();
-    // let currentDate = `${day}-${month}-${year}`;
-
-    // console.log(`Getting Daily for ${currentDate}`);
-
-    await client.connect();
-
     result = await collection
-      .find({ date: date }, { projection: { _id: 0 } })
+      .find({ date: date, rows: rows, cols: cols }, { projection: { _id: 0 } })
       .toArray();
-  } finally {
-    // await client.close();
+  } catch (error) {
+    throw error;
   }
 
   return result;
 }
 
-async function setDailyNonogram10x10(date) {
+// function that creates a new document
+// throws error if fails to write
+async function insertDailyNonogram(date, rowHints, colHints) {
   try {
-    // Check if the current date is in already stored
-    const document = getDailyNonogram10x10(date);
-
-    // If the date is not stored, generate and add a new problem
-    if (document.length == 0) {
-    }
-  } catch {
-  } finally {
+    const document = {
+      date: date,
+      rows: rowHints.length,
+      cols: colHints.length,
+      rowHints: rowHints,
+      colHints: colHints,
+    };
+    const result = await collection.insertOne(document);
+  } catch (error) {
+    throw error;
   }
 }
 
-// // run().catch(console.dir);
-// getDailyNonogram10x10("1-1-2025").catch(console.dir);
+// update the problem for a date
+async function updateDailyNonogram(date, rowHints, colHints) {
+  try {
+    const rows = rowHints.length;
+    const cols = colHints.length;
+
+    const filter = { date: date, rows: rows, cols: cols };
+    const updateDocument = {
+      date: date,
+      rows: rows,
+      cols: cols,
+      rowHints: rowHints,
+      colHints: colHints,
+    };
+
+    const result = await collection.updateOne(filter, updateDocument);
+  } catch (error) {
+    throw error;
+  }
+}
+
+// function that checks whehter or not there is already a nonogram present for the day
+async function dailyNonogramIsPresent(date, rows, cols) {
+  try {
+    const result = readDailyNonogram(date, rows, cols);
+  } catch (error) {
+    throw error;
+  }
+  return result.length > 0;
+}
+
+/*
+    FUNCTIONAL QUERIES
+*/
+
+async function getDailyNonogram10x10(date) {
+  let result = null;
+  try {
+    console.log(`Getting Daily 10x10 for ${date}`);
+    result = await readDailyNonogram(date, 10, 10);
+    if (result.length == 0) {
+      console.log(`No problem found for ${date}`);
+      return null;
+    }
+    return result[0];
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function setDailyNonogram10x10(date, rowHints, colHints) {
+  try {
+    const rows = rowHints.length;
+    const cols = colHints.length;
+
+    if (dailyNonogramIsPresent(date, rows, cols)) {
+      await updateDailyNonogram(date, rowHints, colHints);
+    } else {
+      await insertDailyNonogram(date, rowHints, colHints);
+    }
+  } catch (error) {
+    throw error;
+  }
+}
 
 module.exports = {
+  dailyNonogramIsPresent,
   getDailyNonogram10x10,
   setDailyNonogram10x10,
 };
