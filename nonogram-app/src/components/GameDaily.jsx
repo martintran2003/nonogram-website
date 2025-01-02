@@ -51,6 +51,7 @@ function GameDaily() {
 
   return (
     <>
+      <h1>Today's Nonogram</h1>
       <Board
         rowCount={rows}
         colCount={cols}
