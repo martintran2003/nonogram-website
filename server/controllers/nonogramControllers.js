@@ -36,10 +36,25 @@ function generateRandomNonogram(req, res) {
 
 async function getDailyNonogram(req, res) {
   // get the result from the query for the daily nonogram
-  const queryResult = await db.getDailyNonogram10x10("1-1-2025");
+  try {
+    const date = new Date();
 
-  console.log("Successful query");
-  res.json(queryResult[0]);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const currentDate = `${day}-${month}-${year}`;
+
+    const queryResult = await db
+      .getDailyNonogram10x10(currentDate)
+      .catch(console.dir);
+
+    console.log(queryResult);
+    res.json(queryResult);
+  } catch (error) {
+    console.log("failed to get nonogram");
+    console.log(error);
+  }
 }
 
 module.exports = { generateRandomNonogram, getDailyNonogram };
