@@ -61,7 +61,11 @@ async function updateDailyNonogram(date, rowHints, colHints) {
   }
 }
 
-// function that checks whehter or not there is already a nonogram present for the day
+/*
+    FUNCTIONAL QUERIES
+*/
+
+// function that checks whether or not there is already a nonogram present for the day
 async function dailyNonogramIsPresent(date, rows, cols) {
   try {
     const result = readDailyNonogram(date, rows, cols);
@@ -70,10 +74,6 @@ async function dailyNonogramIsPresent(date, rows, cols) {
   }
   return result.length > 0;
 }
-
-/*
-    FUNCTIONAL QUERIES
-*/
 
 async function getDailyNonogram10x10(date) {
   let result = null;
@@ -92,10 +92,7 @@ async function getDailyNonogram10x10(date) {
 
 async function setDailyNonogram10x10(date, rowHints, colHints) {
   try {
-    const rows = rowHints.length;
-    const cols = colHints.length;
-
-    if (dailyNonogramIsPresent(date, rows, cols)) {
+    if (dailyNonogramIsPresent(date, 10, 10)) {
       await updateDailyNonogram(date, rowHints, colHints);
     } else {
       await insertDailyNonogram(date, rowHints, colHints);

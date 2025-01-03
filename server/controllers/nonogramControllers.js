@@ -49,7 +49,6 @@ async function getDailyNonogram(req, res) {
       .getDailyNonogram10x10(currentDate)
       .catch(console.dir);
 
-    console.log(queryResult);
     res.json(queryResult);
   } catch (error) {
     console.log("failed to get nonogram");

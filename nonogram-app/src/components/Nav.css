@@ -1,0 +1,19 @@
+.nav-list {
+  list-style-type: none;
+
+  padding: 10px;
+}
+
+.nav-item {
+  display: inline;
+  margin: 5px;
+
+  cursor: pointer;
+}
+
+.home {
+  font-size: 70px;
+}
+
+.practice {
+}

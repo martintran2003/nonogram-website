@@ -77,13 +77,10 @@ function Board({
 
   // Mark available cells as selected
   function performSelection(event) {
-    // make sure still in leftSelecting mode
     if (selecting) {
       if (event.button == 0) {
-        console.log("left release");
         setCells(1);
       } else if (event.button == 2) {
-        console.log("right release");
         setCells(0);
       }
 

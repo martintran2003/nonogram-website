@@ -1,4 +1,4 @@
-function SolveMessage({ solveTime, newGame }) {
+function SolveMessage({ solveTime }) {
   const minutes = Math.floor(solveTime / 60000);
   const seconds = Math.floor((solveTime % 60000) / 1000);
   const milliseconds = solveTime % 1000;
@@ -12,12 +12,7 @@ function SolveMessage({ solveTime, newGame }) {
     (milliseconds < 10 ? "0" : "") +
     milliseconds +
     (minutes == 0 ? "s" : "");
-  return (
-    <div>
-      You solved the puzzle in {timeStr}
-      <button onClick={newGame}>New Game</button>
-    </div>
-  );
+  return <div>You solved the puzzle in {timeStr}</div>;
 }
 
 export default SolveMessage;

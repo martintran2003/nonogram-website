@@ -58,6 +58,7 @@ function Game() {
 
   return (
     <>
+      <h1>Practice Nonograms</h1>
       <Selector rows={rows} cols={cols} updateBoard={updateBoard} />
       <Board
         rowCount={rows}
@@ -69,7 +70,10 @@ function Game() {
         playable={playable}
       />
       {solved && (
-        <SolveMessage solveTime={endTime - startTime} newGame={newGame} />
+        <>
+          <SolveMessage solveTime={endTime - startTime} />
+          <button onClick={newGame}></button>
+        </>
       )}
     </>
   );

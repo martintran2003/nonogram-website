@@ -27,8 +27,8 @@ function GameDaily() {
 
   // update and fetch a new board
   async function getDailyProblem() {
-    const result = await fetch("http://localhost:8000/dailyproblem").then(
-      (res) => res.json()
+    const result = await fetch("http://localhost:8000/daily").then((res) =>
+      res.json()
     );
     if (result == null) {
       console.log("No problem was found for today");
