@@ -1,5 +1,5 @@
-const { query } = require("express");
-const db = require("../db/queries");
+// nonogramControllers.js
+// controllers for nonograms functionality
 
 // generate a random nonogram using the provided query values for row and col
 function generateRandomNonogram(req, res) {
@@ -24,36 +24,14 @@ function generateRandomNonogram(req, res) {
     "./scripts/nonogramGenerator.py",
     rows,
     cols,
-    String(seed),
+    seed,
   ]);
 
   prog.stdout.on("data", function (data) {
-    const result = JSON.parse(JSON.stringify(data.toString()));
+    const result = JSON.parse(data);
 
     res.json(result);
   });
 }
 
-async function getDailyNonogram(req, res) {
-  // get the result from the query for the daily nonogram
-  try {
-    const date = new Date();
-
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-
-    const currentDate = `${day}-${month}-${year}`;
-
-    const queryResult = await db
-      .getDailyNonogram10x10(currentDate)
-      .catch(console.dir);
-
-    res.json(queryResult);
-  } catch (error) {
-    console.log("failed to get nonogram");
-    console.log(error);
-  }
-}
-
-module.exports = { generateRandomNonogram, getDailyNonogram };
+module.exports = { generateRandomNonogram };

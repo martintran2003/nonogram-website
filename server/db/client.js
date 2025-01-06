@@ -1,3 +1,7 @@
+// client.js
+// Set up client to connect to MongoDB for daily nonograms
+// requires Node.js link to Database
+
 require("dotenv").config();
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
