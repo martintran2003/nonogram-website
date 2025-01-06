@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const { generateRandomNonogram } = require("./controllers/nonogramControllers");
 const dailyNonogramRouter = require("./routes/dailyProblemRouter");
+const { populateWeek } = require("./db/populate");
+
 const app = express();
 
 app.use(cors());
@@ -16,3 +18,9 @@ app.listen(8000, () => {
 });
 
 const schedule = require("node-schedule");
+
+// schedule a job that proactively populates a week of problems
+const job = schedule.scheduleJob("0 0 * * *", async function () {
+  console.log("Populating week");
+  await populateWeek(10, 10);
+});
