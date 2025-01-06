@@ -3,7 +3,7 @@
 
 // generate a random nonogram using the provided query values for row and col
 function generateRandomNonogram(req, res) {
-  let rows, cols;
+  let rows, cols, seed;
   if (req.query.hasOwnProperty("rows")) {
     rows = req.query.rows;
   } else {
@@ -15,8 +15,15 @@ function generateRandomNonogram(req, res) {
   } else {
     cols = "10";
   }
+  if (req.query.hasOwnProperty("seed")) {
+    seed = req.query.seed;
+  } else {
+    seed = Date.now();
+  }
 
-  const seed = Date.now();
+  console.log(
+    `Attempting to generate ${rows}x${cols} nonogram for seed ${seed}`
+  );
   // https://stackoverflow.com/questions/23450534/how-to-call-a-python-function-from-node-js
   const { spawn } = require("child_process");
 

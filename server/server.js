@@ -4,6 +4,10 @@ const { generateRandomNonogram } = require("./controllers/nonogramControllers");
 const dailyNonogramRouter = require("./routes/dailyProblemRouter");
 const { populateWeek } = require("./db/populate");
 
+process.on("uncaughtException", function (err) {
+  console.error(err);
+});
+
 const app = express();
 
 app.use(cors());

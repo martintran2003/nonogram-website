@@ -92,6 +92,7 @@ async function getDailyNonogram10x10(date) {
       console.log(`No problem found for ${date}`);
       return null;
     }
+    console.log(`Successfully received Daily 10x10 for ${date}`);
     return result[0];
   } catch (error) {
     throw error;

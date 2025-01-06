@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 // Component that selects the rows and columns of the board
-function Selector({ rows, cols, updateBoard }) {
+function Selector({ rows, cols, seed, updateBoard }) {
   const [currentRows, setCurrentRows] = useState(rows);
   const [currentCols, setCurrentCols] = useState(cols);
+  const [currentSeed, setCurrentSeed] = useState(seed);
 
   useEffect(() => {
     setCurrentRows(rows);
     setCurrentCols(cols);
-  }, [rows, cols]);
+    setCurrentSeed(seed);
+  }, [rows, cols, seed]);
 
   function sumbitNewBoard(event) {
     event.preventDefault();
-    updateBoard(event.target.rows.value, event.target.cols.value);
+    updateBoard(
+      event.target.rows.value,
+      event.target.cols.value,
+      event.target.seed.value
+    );
   }
 
   return (
@@ -41,6 +47,19 @@ function Selector({ rows, cols, updateBoard }) {
             setCurrentCols(event.target.value);
           }}
         ></input>
+        <label htmlFor="seed">Seed</label>
+        <input
+          type="number"
+          id="seed"
+          name="seed"
+          min="0"
+          max={2 ** 32 - 1}
+          value={currentSeed}
+          onChange={(event) => {
+            setCurrentSeed(event.target.value);
+          }}
+        ></input>
+
         <input type="submit" />
       </form>
     </>

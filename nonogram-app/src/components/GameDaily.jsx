@@ -47,10 +47,7 @@ function GameDaily() {
     setStartTime(Date.now());
   }
 
-  function newGame() {
-    updateBoard(rows, cols);
-  }
-
+  // solve the problem and set the solved time
   function solve() {
     setSolved(true);
     setEndTime(Date.now());
@@ -58,7 +55,7 @@ function GameDaily() {
 
   return (
     <>
-      <h1>Today's Nonogram</h1>
+      <h2 className="board-label">Today's Nonogram</h2>
       <Board
         rowCount={rows}
         colCount={cols}
@@ -68,9 +65,7 @@ function GameDaily() {
         updateSolved={solve}
         playable={playable}
       />
-      {solved && (
-        <SolveMessage solveTime={endTime - startTime} newGame={newGame} />
-      )}
+      {solved && <SolveMessage solveTime={endTime - startTime} />}
     </>
   );
 }

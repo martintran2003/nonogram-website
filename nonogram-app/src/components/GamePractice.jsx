@@ -8,6 +8,7 @@ function Game() {
   const [colHints, setColHints] = useState([]);
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
+  const [seed, setSeed] = useState(0);
   const [solved, setSolved] = useState(false);
   const [playable, setPlayable] = useState(false);
   const [startTime, setStartTime] = useState(0);
@@ -25,21 +26,23 @@ function Game() {
   }, [solved]);
 
   // update and fetch a new board
-  async function updateBoard(row, col) {
+  async function updateBoard(row, col, seed) {
     const { rowHints, colHints } = await fetch(
       "http://localhost:8000/randomproblem?" +
         new URLSearchParams({
           rows: row,
           cols: col,
+          seed: seed,
         })
-    )
-      .then((res) => res.json())
-      .then((data) => JSON.parse(data));
+    ).then((res) => res.json());
 
     setRowHints(rowHints);
     setColHints(colHints);
+
     setRows(row);
     setCols(col);
+    setSeed(seed);
+
     setSolved(false);
 
     setPlayable(true);
@@ -48,7 +51,7 @@ function Game() {
   }
 
   function newGame() {
-    updateBoard(rows, cols);
+    updateBoard(rows, cols, Math.floor(Math.random() * 2 ** 32));
   }
 
   function solve() {
@@ -59,7 +62,7 @@ function Game() {
   return (
     <>
       <h1>Practice Nonograms</h1>
-      <Selector rows={rows} cols={cols} updateBoard={updateBoard} />
+      <Selector rows={rows} cols={cols} seed={seed} updateBoard={updateBoard} />
       <Board
         rowCount={rows}
         colCount={cols}
@@ -72,7 +75,7 @@ function Game() {
       {solved && (
         <>
           <SolveMessage solveTime={endTime - startTime} />
-          <button onClick={newGame}></button>
+          <button onClick={newGame}>New Game</button>
         </>
       )}
     </>

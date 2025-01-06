@@ -12,8 +12,9 @@
 }
 
 .home {
-  font-size: 70px;
+  display: inline;
 }
 
 .practice {
+  display: inline;
 }
