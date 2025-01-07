@@ -27,10 +27,6 @@ function Board({
 
   // update the board if the game changes
   useEffect(() => {
-<<<<<<< HEAD
-    console.log(rowLabelsProp, columnLabelsProp);
-=======
->>>>>>> e278b58 (allow board to keep track of the current state of the board and if the problem was previously solved, keep track of the time used to solve it)
     // set the basic parts of the board
     setRows(rowCount);
     setCols(colCount);
@@ -492,10 +488,6 @@ function Board({
 
       return interleaved;
     } catch (err) {
-<<<<<<< HEAD
-      console.log(err);
-=======
->>>>>>> e278b58 (allow board to keep track of the current state of the board and if the problem was previously solved, keep track of the time used to solve it)
       return [];
     }
   }
@@ -615,7 +607,6 @@ function Board({
     return true;
   }
 
-  console.log(boardState, rowLabels, columnLabels);
   return (
     <div className="board">
       <table
