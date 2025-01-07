@@ -71,9 +71,15 @@ function GamePractice() {
 
   // when puzzle is solved, set as solved and mark the end time to calculate solve time
   function solve() {
+    const solveTime = Date.now();
+
     setSolved(true);
+
     localStorage.setItem("random.solved", true);
-    setEndTime(Date.now());
+    localStorage.setItem("random.endTime", solveTime);
+
+    // if the problem was not already solved (i.e from local storage), set the new end time
+    if (!solved) setEndTime(solveTime);
   }
 
   /*
@@ -91,6 +97,7 @@ function GamePractice() {
     localStorage.setItem("random.solved", false);
 
     localStorage.setItem("random.startTime", time);
+    localStorage.setItem("random.endTime");
   }
 
   // attempt to load the current game from local storage
@@ -102,6 +109,8 @@ function GamePractice() {
     const rowHints = JSON.parse(localStorage.getItem("random.rowHints"));
     const colHints = JSON.parse(localStorage.getItem("random.colHints"));
     const startTime = Number(localStorage.getItem("random.startTime"));
+    const endTime = Number(localStorage.getItem("random.endTime"));
+    const solved = localStorage.getItem("random.solved");
 
     // if any component is missing, fail to load
     if (
@@ -110,7 +119,9 @@ function GamePractice() {
       seed == null ||
       rowHints == null ||
       colHints == null ||
-      startTime == null
+      startTime == null ||
+      endTime == null ||
+      solved == null
     )
       return false;
 
@@ -121,10 +132,12 @@ function GamePractice() {
     setRowHints(rowHints);
     setColHints(colHints);
 
-    setSolved(false);
+    setSolved(solved === "true");
     setPlayable(true);
 
     setStartTime(startTime);
+    setEndTime(endTime);
+
     return true;
   }
 

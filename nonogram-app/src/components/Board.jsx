@@ -1,6 +1,8 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import "./Board.css";
+
 function Board({
+  gameName,
   rowCount,
   colCount,
   rowLabelsProp,
@@ -14,20 +16,30 @@ function Board({
 
   const [rowLabels, setRowLabels] = useState([]);
   const [columnLabels, setColumnLabels] = useState([]);
+  const [rowLabelsSolved, setRowLabelsSolved] = useState([]);
+  const [columnLabelsSolved, setColumnLabelsSolved] = useState([]);
 
   const [boardState, setBoardState] = useState([]);
+
   const [selecting, setSelecting] = useState(false);
   const [selectionStart, setSelectionStart] = useState([]);
   const [pointing, setPointing] = useState([]);
 
-  const [rowLabelsSolved, setRowLabelsSolved] = useState([]);
-  const [columnLabelsSolved, setColumnLabelsSolved] = useState([]);
-
+  // update the board if the game changes
   useEffect(() => {
+    console.log(rowLabelsProp, columnLabelsProp);
+    // set the basic parts of the board
     setRows(rowCount);
     setCols(colCount);
     setRowLabels(rowLabelsProp);
     setColumnLabels(columnLabelsProp);
+
+    // if there are no rows and cols, it is the first load
+    // at this point, we can try to look for localStorage to find the board state
+    if (rows == 0 && cols == 0 && loadBoardState() && loadSolvedState()) {
+      return;
+    }
+
     setBoardState(initBoard(rowCount, colCount));
     setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
     setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
@@ -114,10 +126,12 @@ function Board({
     );
   }
 
+  // get the cell states in a column of the board
   function boardColumn(board, col) {
     return board.map((x) => x[col]);
   }
 
+  // create an empty board with given dimensions
   function initBoard(rows, cols) {
     const initBoard = [];
     for (let row = 0; row < rows; row++) {
@@ -130,6 +144,7 @@ function Board({
     return initBoard;
   }
 
+  // create array for the solved states of row pieces
   function initRowsSolved(rows, rowLabels) {
     const rowsSolved = [];
     for (let i = 0; i < rows; i++) {
@@ -145,6 +160,7 @@ function Board({
     return rowsSolved;
   }
 
+  // create array for the solved states of column pieces
   function initColsSolved(cols, columnLabels) {
     const colsSolved = [];
 
@@ -159,6 +175,7 @@ function Board({
     }
     return colsSolved;
   }
+
   /*
     GAMEPLAY FUNCTIONS
   */
@@ -196,10 +213,14 @@ function Board({
       }
     }
 
+    // evaluate solved board
     evaluateBoard(copy);
 
     // Set the new state
     setBoardState(copy);
+
+    // save new state to localStorage
+    saveBoardState(copy);
   }
 
   // evaluates the row and checks for solved pieces and updates
@@ -310,12 +331,16 @@ function Board({
       updateSolved();
     }
 
+    saveSolvedState(rowSolved, colSolved);
+
     setRowLabelsSolved(rowSolved);
     setColumnLabelsSolved(colSolved);
   }
 
   // check that all pieces are won
   function checkWin(rowSolved, colSolved) {
+    if (rowSolved.length == 0 && colSolved.length == 0) return false; // never solve if there is no board
+
     return (
       rowSolved.every((row) => row.every((piece) => piece)) &&
       colSolved.every((col) => col.every((piece) => piece))
@@ -445,43 +470,101 @@ function Board({
   }
 
   function getRowHints(row) {
-    const rowsSolved = rowLabels[row].map((item, index) => {
-      return rowLabelsSolved[row][index] ? (
-        <em key={"rowhint" + row + "-" + index}>{String(item)}</em>
-      ) : (
-        String(item)
-      );
-    });
+    try {
+      const rowsSolved = rowLabels[row].map((item, index) => {
+        return rowLabelsSolved[row][index] ? (
+          <em key={"rowhint" + row + "-" + index}>{String(item)}</em>
+        ) : (
+          String(item)
+        );
+      });
 
-    const interleaved = [];
-    rowsSolved.forEach((element) => {
-      if (interleaved) {
-        interleaved.push(" ");
-      }
-      interleaved.push(element);
-    });
-    return interleaved;
+      const interleaved = [];
+      rowsSolved.forEach((element) => {
+        if (interleaved) {
+          interleaved.push(" ");
+        }
+        interleaved.push(element);
+      });
+
+      return interleaved;
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
   }
 
   function getColHints(col) {
-    const colsSolved = columnLabels[col].map((item, index) => {
-      return columnLabelsSolved[col][index] ? (
-        <em key={"colhint" + col + "-" + index}>{String(item)}</em>
-      ) : (
-        String(item)
-      );
-    });
+    try {
+      const colsSolved = columnLabels[col].map((item, index) => {
+        return columnLabelsSolved[col][index] ? (
+          <em key={"colhint" + col + "-" + index}>{String(item)}</em>
+        ) : (
+          String(item)
+        );
+      });
 
-    const interleaved = [];
-    colsSolved.forEach((element, index) => {
-      if (interleaved) {
-        interleaved.push(<br key={"columnlabelbreak" + String(index)} />);
-      }
-      interleaved.push(element);
-    });
-    return interleaved;
+      const interleaved = [];
+      colsSolved.forEach((element, index) => {
+        if (interleaved) {
+          interleaved.push(<br key={"columnlabelbreak" + String(index)} />);
+        }
+        interleaved.push(element);
+      });
+      return interleaved;
+    } catch (err) {
+      console.log(err);
+      return [];
+    }
   }
 
+  /*
+    Local Storage functions
+  */
+
+  // save the current board state into localStorage
+  // use the given name for the board to differentiate between different game types
+  function saveBoardState(board) {
+    localStorage.setItem(gameName + ".board", JSON.stringify(board));
+  }
+
+  // load the saved board state from localStorage
+  function loadBoardState() {
+    const board = JSON.parse(localStorage.getItem(gameName + ".board"));
+    if (board == null) return false;
+
+    setBoardState(board); // set the board state
+
+    return true;
+  }
+
+  // save the state of the solved rows and columns
+  function saveSolvedState(solvedRows, solvedCols) {
+    localStorage.setItem(gameName + ".solvedRows", JSON.stringify(solvedRows));
+    localStorage.setItem(
+      gameName + ".solvedColumns",
+      JSON.stringify(solvedCols)
+    );
+  }
+
+  // load the saved hint solved state from localStorage
+  function loadSolvedState() {
+    const rowsSolved = JSON.parse(
+      localStorage.getItem(gameName + ".solvedRows")
+    );
+    const colsSolved = JSON.parse(
+      localStorage.getItem(gameName + ".solvedColumns")
+    );
+
+    if (rowsSolved == null || colsSolved == null) return false;
+
+    setRowLabelsSolved(rowsSolved);
+    setColumnLabelsSolved(colsSolved);
+
+    return true;
+  }
+
+  console.log(boardState, rowLabels, columnLabels);
   return (
     <div className="board">
       <table
@@ -497,7 +580,7 @@ function Board({
         }}
       >
         <tbody>
-          <tr>
+          <tr key="top-row">
             <td className="label" onMouseEnter={resetState}></td>
             {columnLabels.map((_, index) => (
               <td
