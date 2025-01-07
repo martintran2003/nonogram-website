@@ -27,7 +27,6 @@ function Board({
 
   // update the board if the game changes
   useEffect(() => {
-    console.log(rowLabelsProp, columnLabelsProp);
     // set the basic parts of the board
     setRows(rowCount);
     setCols(colCount);
@@ -489,7 +488,6 @@ function Board({
 
       return interleaved;
     } catch (err) {
-      console.log(err);
       return [];
     }
   }
@@ -513,7 +511,6 @@ function Board({
       });
       return interleaved;
     } catch (err) {
-      console.log(err);
       return [];
     }
   }
@@ -564,7 +561,6 @@ function Board({
     return true;
   }
 
-  console.log(boardState, rowLabels, columnLabels);
   return (
     <div className="board">
       <table
