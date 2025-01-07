@@ -52,14 +52,16 @@ function GamePractice() {
     setCols(col);
     setSeed(seed);
 
-    // save the new game into local storage
-    saveCurrentGame(rows, cols, seed, rowHints, colHints);
-
     setSolved(false);
 
     setPlayable(true);
 
-    setStartTime(Date.now());
+    const startTime = Date.now();
+
+    setStartTime(startTime);
+
+    // save the new game into local storage
+    saveCurrentGame(row, col, seed, rowHints, colHints, startTime);
   }
 
   // create a new game with the same board dimensions but with random seed
@@ -70,7 +72,7 @@ function GamePractice() {
   // when puzzle is solved, set as solved and mark the end time to calculate solve time
   function solve() {
     setSolved(true);
-    localStorage.setItem("random-solved", true);
+    localStorage.setItem("random.solved", true);
     setEndTime(Date.now());
   }
 
@@ -79,7 +81,7 @@ function GamePractice() {
   functions that interact with localStorage to keep track of state of the game
   */
 
-  function saveCurrentGame(rows, cols, seed, rowHints, colHints) {
+  function saveCurrentGame(rows, cols, seed, rowHints, colHints, time) {
     localStorage.setItem("random.rows", rows);
     localStorage.setItem("random.cols", cols);
     localStorage.setItem("random.seed", seed);
@@ -87,6 +89,8 @@ function GamePractice() {
     localStorage.setItem("random.rowHints", JSON.stringify(rowHints));
     localStorage.setItem("random.colHints", JSON.stringify(colHints));
     localStorage.setItem("random.solved", false);
+
+    localStorage.setItem("random.startTime", time);
   }
 
   // attempt to load the current game from local storage
@@ -97,6 +101,7 @@ function GamePractice() {
     const seed = Number(localStorage.getItem("random.seed"));
     const rowHints = JSON.parse(localStorage.getItem("random.rowHints"));
     const colHints = JSON.parse(localStorage.getItem("random.colHints"));
+    const startTime = Number(localStorage.getItem("random.startTime"));
 
     // if any component is missing, fail to load
     if (
@@ -104,7 +109,8 @@ function GamePractice() {
       cols == null ||
       seed == null ||
       rowHints == null ||
-      colHints == null
+      colHints == null ||
+      startTime == null
     )
       return false;
 
@@ -118,6 +124,7 @@ function GamePractice() {
     setSolved(false);
     setPlayable(true);
 
+    setStartTime(startTime);
     return true;
   }
 
