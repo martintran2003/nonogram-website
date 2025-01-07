@@ -3,22 +3,31 @@ import Selector from "./Selector.jsx";
 import { useState, useEffect } from "react";
 import SolveMessage from "./SolveMessage.jsx";
 
-function Game() {
-  const [rowHints, setRowHints] = useState([]);
-  const [colHints, setColHints] = useState([]);
+function GamePractice() {
+  // Board states
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
   const [seed, setSeed] = useState(0);
+  const [rowHints, setRowHints] = useState([]);
+  const [colHints, setColHints] = useState([]);
+
   const [solved, setSolved] = useState(false);
   const [playable, setPlayable] = useState(false);
+
+  // Timer states
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
 
-  // Initialize a 10x10 board
+  // Initialize board on load
   useEffect(() => {
-    updateBoard(10, 10);
+    // attempt to load a problem from the local storage
+    if (loadCurrentGame()) return;
+
+    // if failed to load game, generate a new random game
+    updateBoard(10, 10, Math.floor(Math.random() * 2 ** 32));
   }, []);
 
+  // when solved, make the board not playable
   useEffect(() => {
     if (solved) {
       setPlayable(false);
@@ -43,6 +52,9 @@ function Game() {
     setCols(col);
     setSeed(seed);
 
+    // save the new game into local storage
+    saveCurrentGame(rows, cols, seed, rowHints, colHints);
+
     setSolved(false);
 
     setPlayable(true);
@@ -50,13 +62,63 @@ function Game() {
     setStartTime(Date.now());
   }
 
+  // create a new game with the same board dimensions but with random seed
   function newGame() {
     updateBoard(rows, cols, Math.floor(Math.random() * 2 ** 32));
   }
 
+  // when puzzle is solved, set as solved and mark the end time to calculate solve time
   function solve() {
     setSolved(true);
+    localStorage.setItem("random-solved", true);
     setEndTime(Date.now());
+  }
+
+  /*
+  Local Storage functions
+  functions that interact with localStorage to keep track of state of the game
+  */
+
+  function saveCurrentGame(rows, cols, seed, rowHints, colHints) {
+    localStorage.setItem("random.rows", rows);
+    localStorage.setItem("random.cols", cols);
+    localStorage.setItem("random.seed", seed);
+
+    localStorage.setItem("random.rowHints", JSON.stringify(rowHints));
+    localStorage.setItem("random.colHints", JSON.stringify(colHints));
+    localStorage.setItem("random.solved", false);
+  }
+
+  // attempt to load the current game from local storage
+  // return true if able to; else, return false
+  function loadCurrentGame() {
+    const rows = Number(localStorage.getItem("random.rows"));
+    const cols = Number(localStorage.getItem("random.cols"));
+    const seed = Number(localStorage.getItem("random.seed"));
+    const rowHints = JSON.parse(localStorage.getItem("random.rowHints"));
+    const colHints = JSON.parse(localStorage.getItem("random.colHints"));
+
+    // if any component is missing, fail to load
+    if (
+      rows == null ||
+      cols == null ||
+      seed == null ||
+      rowHints == null ||
+      colHints == null
+    )
+      return false;
+
+    // update the state using the local game
+    setRows(rows);
+    setCols(cols);
+    setSeed(seed);
+    setRowHints(rowHints);
+    setColHints(colHints);
+
+    setSolved(false);
+    setPlayable(true);
+
+    return true;
   }
 
   return (
@@ -64,6 +126,7 @@ function Game() {
       <h1>Practice Nonograms</h1>
       <Selector rows={rows} cols={cols} seed={seed} updateBoard={updateBoard} />
       <Board
+        gameName="random"
         rowCount={rows}
         colCount={cols}
         rowLabelsProp={rowHints}
@@ -82,4 +145,4 @@ function Game() {
   );
 }
 
-export default Game;
+export default GamePractice;
