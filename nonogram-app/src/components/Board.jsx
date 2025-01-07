@@ -27,7 +27,10 @@ function Board({
 
   // update the board if the game changes
   useEffect(() => {
+<<<<<<< HEAD
     console.log(rowLabelsProp, columnLabelsProp);
+=======
+>>>>>>> e278b58 (allow board to keep track of the current state of the board and if the problem was previously solved, keep track of the time used to solve it)
     // set the basic parts of the board
     setRows(rowCount);
     setCols(colCount);
@@ -489,7 +492,10 @@ function Board({
 
       return interleaved;
     } catch (err) {
+<<<<<<< HEAD
       console.log(err);
+=======
+>>>>>>> e278b58 (allow board to keep track of the current state of the board and if the problem was previously solved, keep track of the time used to solve it)
       return [];
     }
   }
@@ -513,9 +519,54 @@ function Board({
       });
       return interleaved;
     } catch (err) {
-      console.log(err);
       return [];
     }
+  }
+
+  /*
+    Local Storage functions
+  */
+
+  // save the current board state into localStorage
+  // use the given name for the board to differentiate between different game types
+  function saveBoardState(board) {
+    localStorage.setItem(gameName + ".board", JSON.stringify(board));
+  }
+
+  // load the saved board state from localStorage
+  function loadBoardState() {
+    const board = JSON.parse(localStorage.getItem(gameName + ".board"));
+    if (board == null) return false;
+
+    setBoardState(board); // set the board state
+
+    return true;
+  }
+
+  // save the state of the solved rows and columns
+  function saveSolvedState(solvedRows, solvedCols) {
+    localStorage.setItem(gameName + ".solvedRows", JSON.stringify(solvedRows));
+    localStorage.setItem(
+      gameName + ".solvedColumns",
+      JSON.stringify(solvedCols)
+    );
+  }
+
+  // load the saved hint solved state from localStorage
+  function loadSolvedState() {
+    const rowsSolved = JSON.parse(
+      localStorage.getItem(gameName + ".solvedRows")
+    );
+    const colsSolved = JSON.parse(
+      localStorage.getItem(gameName + ".solvedColumns")
+    );
+
+    if (rowsSolved == null || colsSolved == null) return false;
+
+    setRowLabelsSolved(rowsSolved);
+    setColumnLabelsSolved(colsSolved);
+
+    return true;
   }
 
   /*
