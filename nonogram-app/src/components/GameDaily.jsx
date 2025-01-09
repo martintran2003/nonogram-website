@@ -19,6 +19,8 @@ function GameDaily() {
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
 
+  const [loaded, setLoaded] = useState(false);
+
   // Initialize a 10x10 board
   useEffect(() => {
     getDailyProblem();
@@ -54,6 +56,8 @@ function GameDaily() {
 
       saveTime(0, 0); // set a base timer
     }
+
+    setLoaded(true);
   }
 
   // solve the problem and set the solved time
@@ -181,23 +185,28 @@ function GameDaily() {
   return (
     <div className="game-container">
       <h2 className="board-label">Today's Nonogram</h2>
-      {startTime == 0 ? (
-        <StartPanel startAction={startTimer} />
+      {loaded ? (
+        <>
+          {startTime == 0 ? (
+            <StartPanel startAction={startTimer} />
+          ) : (
+            <Board
+              gameName="daily"
+              gameID={date} // use the date as the game's ID
+              rowCount={rows}
+              colCount={cols}
+              rowLabelsProp={rowHints}
+              columnLabelsProp={colHints}
+              solved={solved}
+              updateSolved={solve}
+              playable={playable}
+            />
+          )}
+          {solved && <SolveMessage solveTime={endTime - startTime} />}
+        </>
       ) : (
-        <Board
-          gameName="daily"
-          gameID={date} // use the date as the game's ID
-          rowCount={rows}
-          colCount={cols}
-          rowLabelsProp={rowHints}
-          columnLabelsProp={colHints}
-          solved={solved}
-          updateSolved={solve}
-          playable={playable}
-        />
+        <div>Loading Game...</div>
       )}
-
-      {solved && <SolveMessage solveTime={endTime - startTime} />}
     </div>
   );
 }
