@@ -39,8 +39,11 @@ function Board({
     if (gameID == null) return; // if there is no gameID, don't do anything yet (the game has not loaded yet)
     if (checkLoad() && loadBoardState() && loadSolvedState()) return; // attempt to load in all parts
 
-    // create a new instance of a board
+    // create a new instance of a board in local storage
     localStorage.setItem(gameName + ".gameID", gameID); // label the state with the new gameID
+    saveBoardState(initBoard(rowCount, colCount)); // save empty board\
+
+    // create an initialized board state
     setBoardState(initBoard(rowCount, colCount));
     setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
     setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
@@ -570,6 +573,7 @@ function Board({
     const idStr = gameName + ".gameID";
     const id = localStorage.getItem(idStr); // get the stored id
 
+    console.log(id, gameID);
     if (id == null) return false; // if no stored id
     if (id !== gameID) return false; // if not matching
 
