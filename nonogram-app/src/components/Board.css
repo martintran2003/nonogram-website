@@ -1,9 +1,8 @@
-
 .cell {
   background-color: white;
   border: 0.5px solid black;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -18,6 +17,17 @@ table {
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
 }
+
+.label.top {
+  text-align: center;
+  vertical-align: bottom;
+}
+
+.label.left {
+  text-align: right;
+  vertical-align: middle;
+}
+
 .guide {
   background-color: rgb(230, 255, 192);
 }
@@ -66,7 +76,7 @@ table {
 }
 
 .board {
-  position:relative;
+  position: relative;
 
   display: flex;
   align-items: center;

@@ -600,7 +600,7 @@ function Board({
             {columnLabels.map((_, index) => (
               <td
                 key={"columnlabel-" + String(index)}
-                className="label"
+                className="label top"
                 onMouseEnter={resetState}
               >
                 {getColHints(index)}
@@ -609,7 +609,7 @@ function Board({
           </tr>
           {boardState.map((row, index) => (
             <tr key={"row" + String(index)}>
-              <td className="label" onMouseEnter={resetState}>
+              <td className="label left" onMouseEnter={resetState}>
                 {getRowHints(index)}
               </td>
               {row.map((cell, index2) => (
