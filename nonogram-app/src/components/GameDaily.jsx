@@ -1,6 +1,8 @@
 import Board from "./Board.jsx";
 import { useState, useEffect } from "react";
 import SolveMessage from "./SolveMessage.jsx";
+import StartPanel from "./StartPanel.jsx";
+import "./GameDaily.css";
 
 function GameDaily() {
   const [rows, setRows] = useState(0);
@@ -46,19 +48,9 @@ function GameDaily() {
     // if there is no loading, generate a new problem
     const storedDate = localStorage.getItem("daily.date");
     if (storedDate == null || storedDate !== date || !loadCurrentGame()) {
-      setRowHints(rowHints);
-      setColHints(colHints);
-      setRows(rows);
-      setCols(cols);
-      setDate(date);
+      createNewGame(rows, cols, rowHints, colHints, date); // generate a new game
 
-      setSolved(false);
-      setPlayable(true);
-
-      const startTime = Date.now();
-      setStartTime(startTime);
-
-      saveCurrentGame(rows, cols, rowHints, colHints, startTime, date, seed);
+      saveCurrentGame(rows, cols, rowHints, colHints, 0, 0, date, seed); // save the game into local storage
     }
   }
 
@@ -78,6 +70,28 @@ function GameDaily() {
     }
   }
 
+  function createNewGame(rows, cols, rowHints, colHints, date) {
+    setRows(rows);
+    setCols(cols);
+    setRowHints(rowHints);
+    setColHints(colHints);
+
+    setDate(date);
+
+    setSolved(false);
+    setPlayable(false);
+  }
+
+  // start the timer
+  function startTimer() {
+    // set new game time
+    const startTime = Date.now();
+    setStartTime(startTime);
+    localStorage.setItem("daily.startTime", startTime);
+
+    setPlayable(true); // game the game playable
+  }
+
   /* 
     Local Storage functions
   */
@@ -88,6 +102,7 @@ function GameDaily() {
     rowHints,
     colHints,
     startTime,
+    endTime,
     date,
     seed
   ) {
@@ -111,8 +126,10 @@ function GameDaily() {
     const cols = Number(localStorage.getItem("daily.cols"));
     const rowHints = JSON.parse(localStorage.getItem("daily.rowHints"));
     const colHints = JSON.parse(localStorage.getItem("daily.colHints"));
+
     const startTime = Number(localStorage.getItem("daily.startTime"));
     const endTime = Number(localStorage.getItem("daily.endTime"));
+
     const solved = localStorage.getItem("daily.solved");
     const date = localStorage.getItem("daily.date");
     const seed = Number(localStorage.getItem("daily.seed"));
@@ -151,23 +168,27 @@ function GameDaily() {
     return true;
   }
 
-  console.log(date);
   return (
-    <>
+    <div className="game-container">
       <h2 className="board-label">Today's Nonogram</h2>
-      <Board
-        gameName="daily"
-        gameID={date} // use the date as the game's ID
-        rowCount={rows}
-        colCount={cols}
-        rowLabelsProp={rowHints}
-        columnLabelsProp={colHints}
-        solved={solved}
-        updateSolved={solve}
-        playable={playable}
-      />
+      {startTime == 0 ? (
+        <StartPanel startAction={startTimer} />
+      ) : (
+        <Board
+          gameName="daily"
+          gameID={date} // use the date as the game's ID
+          rowCount={rows}
+          colCount={cols}
+          rowLabelsProp={rowHints}
+          columnLabelsProp={colHints}
+          solved={solved}
+          updateSolved={solve}
+          playable={playable}
+        />
+      )}
+
       {solved && <SolveMessage solveTime={endTime - startTime} />}
-    </>
+    </div>
   );
 }
 
