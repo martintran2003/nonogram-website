@@ -41,7 +41,7 @@ function GameDaily() {
       return;
     }
 
-    const { date, rows, cols, rowHints, colHints, seed } = result;
+    const { date, rows, cols, rowHints, colHints } = result;
 
     // look in the localstorage for the date of the stored problem
     // if it matches the problem received from the server, load in the saved progress
@@ -50,7 +50,9 @@ function GameDaily() {
     if (storedDate == null || storedDate !== date || !loadCurrentGame()) {
       createNewGame(rows, cols, rowHints, colHints, date); // generate a new game
 
-      saveCurrentGame(rows, cols, rowHints, colHints, 0, 0, date, seed); // save the game into local storage
+      saveMetadata(date, false); // save the date and set solved as false
+
+      saveTime(0, 0); // set a base timer
     }
   }
 
@@ -84,10 +86,20 @@ function GameDaily() {
 
   // start the timer
   function startTimer() {
+    // if the problem is not loaded yet, don't do anything
+    if (rows == 0 || cols == 0) {
+      return;
+    }
+
     // set new game time
     const startTime = Date.now();
-    setStartTime(startTime);
-    localStorage.setItem("daily.startTime", startTime);
+
+    setStartTime(startTime); // set start time
+
+    saveTime(startTime, 0); // save the timer into the local storage
+
+    // save the current game into local storage (confidential information)
+    saveCurrentGame(rows, cols, rowHints, colHints, seed);
 
     setPlayable(true); // game the game playable
   }
@@ -96,27 +108,13 @@ function GameDaily() {
     Local Storage functions
   */
 
-  function saveCurrentGame(
-    rows,
-    cols,
-    rowHints,
-    colHints,
-    startTime,
-    endTime,
-    date,
-    seed
-  ) {
+  // saves the details of the current game
+  function saveCurrentGame(rows, cols, rowHints, colHints, seed) {
     localStorage.setItem("daily.rows", rows);
     localStorage.setItem("daily.cols", cols);
 
     localStorage.setItem("daily.rowHints", JSON.stringify(rowHints));
     localStorage.setItem("daily.colHints", JSON.stringify(colHints));
-    localStorage.setItem("daily.solved", false);
-
-    localStorage.setItem("daily.startTime", startTime);
-    localStorage.setItem("daily.endTime", endTime);
-
-    localStorage.setItem("daily.date", date);
 
     localStorage.setItem("daily.seed", seed);
   }
@@ -166,6 +164,18 @@ function GameDaily() {
     setEndTime(endTime);
 
     return true;
+  }
+
+  // save metadata which contains the date and the solved status
+  function saveMetadata(date, solved) {
+    localStorage.setItem("daily.date", date);
+    localStorage.setItem("daily.solved", solved);
+  }
+
+  // set the time in local storage
+  function saveTime(startTime, endTime) {
+    localStorage.setItem("daily.startTime", startTime);
+    localStorage.setItem("daily.endTime", endTime);
   }
 
   return (
