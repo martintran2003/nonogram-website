@@ -3,22 +3,26 @@ import { useState, useEffect } from "react";
 import SolveMessage from "./SolveMessage.jsx";
 
 function GameDaily() {
-  const [rowHints, setRowHints] = useState([]);
-  const [colHints, setColHints] = useState([]);
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
+  const [rowHints, setRowHints] = useState([]);
+  const [colHints, setColHints] = useState([]);
+  const [seed, setSeed] = useState(0);
+
+  const [date, setDate] = useState("");
+
   const [solved, setSolved] = useState(false);
   const [playable, setPlayable] = useState(false);
+
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState(0);
-
-  const [received, setReceived] = useState(false); // whether or not the problem has been received from server yet
 
   // Initialize a 10x10 board
   useEffect(() => {
     getDailyProblem();
   }, []);
 
+  // when the game is solved, make the game not playable
   useEffect(() => {
     if (solved) {
       setPlayable(false);
@@ -34,29 +38,126 @@ function GameDaily() {
       console.log("No problem was found for today");
       return;
     }
-    const { rows, cols, rowHints, colHints } = result;
 
-    setRowHints(rowHints);
-    setColHints(colHints);
-    setRows(rows);
-    setCols(cols);
-    setSolved(false);
+    const { date, rows, cols, rowHints, colHints, seed } = result;
 
-    setPlayable(true);
+    // look in the localstorage for the date of the stored problem
+    // if it matches the problem received from the server, load in the saved progress
+    // if there is no loading, generate a new problem
+    const storedDate = localStorage.getItem("daily.date");
+    if (storedDate == null || storedDate !== date || !loadCurrentGame()) {
+      setRowHints(rowHints);
+      setColHints(colHints);
+      setRows(rows);
+      setCols(cols);
+      setDate(date);
 
-    setStartTime(Date.now());
+      setSolved(false);
+      setPlayable(true);
+
+      const startTime = Date.now();
+      setStartTime(startTime);
+
+      saveCurrentGame(rows, cols, rowHints, colHints, startTime, date, seed);
+    }
   }
 
   // solve the problem and set the solved time
   function solve() {
+    const solveTime = Date.now();
+
     setSolved(true);
-    setEndTime(Date.now());
+
+    // set as solved in storage
+    localStorage.setItem("daily.solved", true);
+
+    // if the problem was not already solved (i.e from local storage), set the new end time
+    if (!solved) {
+      localStorage.setItem("daily.endTime", solveTime);
+      setEndTime(solveTime);
+    }
   }
 
+  /* 
+    Local Storage functions
+  */
+
+  function saveCurrentGame(
+    rows,
+    cols,
+    rowHints,
+    colHints,
+    startTime,
+    date,
+    seed
+  ) {
+    localStorage.setItem("daily.rows", rows);
+    localStorage.setItem("daily.cols", cols);
+
+    localStorage.setItem("daily.rowHints", JSON.stringify(rowHints));
+    localStorage.setItem("daily.colHints", JSON.stringify(colHints));
+    localStorage.setItem("daily.solved", false);
+
+    localStorage.setItem("daily.startTime", startTime);
+    localStorage.setItem("daily.endTime", endTime);
+
+    localStorage.setItem("daily.date", date);
+
+    localStorage.setItem("daily.seed", seed);
+  }
+
+  function loadCurrentGame() {
+    const rows = Number(localStorage.getItem("daily.rows"));
+    const cols = Number(localStorage.getItem("daily.cols"));
+    const rowHints = JSON.parse(localStorage.getItem("daily.rowHints"));
+    const colHints = JSON.parse(localStorage.getItem("daily.colHints"));
+    const startTime = Number(localStorage.getItem("daily.startTime"));
+    const endTime = Number(localStorage.getItem("daily.endTime"));
+    const solved = localStorage.getItem("daily.solved");
+    const date = localStorage.getItem("daily.date");
+    const seed = Number(localStorage.getItem("daily.seed"));
+
+    // if any component is missing, fail to load
+    if (
+      rows == null ||
+      cols == null ||
+      rowHints == null ||
+      colHints == null ||
+      startTime == null ||
+      endTime == null ||
+      solved == null ||
+      date == null ||
+      seed == null
+    )
+      return false;
+
+    // update the state using the local game
+    setRows(rows);
+    setCols(cols);
+    setRowHints(rowHints);
+    setColHints(colHints);
+
+    setSeed(seed);
+
+    setDate(date);
+
+    // set the solved state; if solved, then make the game not playable
+    setSolved(solved === "true");
+    setPlayable(solved !== "true");
+
+    setStartTime(startTime);
+    setEndTime(endTime);
+
+    return true;
+  }
+
+  console.log(date);
   return (
     <>
       <h2 className="board-label">Today's Nonogram</h2>
       <Board
+        gameName="daily"
+        gameID={date} // use the date as the game's ID
         rowCount={rows}
         colCount={cols}
         rowLabelsProp={rowHints}

@@ -7,10 +7,11 @@ function GamePractice() {
   // Board states
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
-  const [seed, setSeed] = useState(0);
+  const [seed, setSeed] = useState(-1);
   const [rowHints, setRowHints] = useState([]);
   const [colHints, setColHints] = useState([]);
 
+  // State of the game
   const [solved, setSolved] = useState(false);
   const [playable, setPlayable] = useState(false);
 
@@ -45,15 +46,14 @@ function GamePractice() {
         })
     ).then((res) => res.json());
 
-    setRowHints(rowHints);
-    setColHints(colHints);
-
     setRows(row);
     setCols(col);
     setSeed(seed);
 
-    setSolved(false);
+    setRowHints(rowHints);
+    setColHints(colHints);
 
+    setSolved(false);
     setPlayable(true);
 
     const startTime = Date.now();
@@ -76,10 +76,12 @@ function GamePractice() {
     setSolved(true);
 
     localStorage.setItem("random.solved", true);
-    localStorage.setItem("random.endTime", solveTime);
 
     // if the problem was not already solved (i.e from local storage), set the new end time
-    if (!solved) setEndTime(solveTime);
+    if (!solved) {
+      localStorage.setItem("random.endTime", solveTime);
+      setEndTime(solveTime);
+    }
   }
 
   /*
@@ -97,7 +99,7 @@ function GamePractice() {
     localStorage.setItem("random.solved", false);
 
     localStorage.setItem("random.startTime", time);
-    localStorage.setItem("random.endTime");
+    localStorage.setItem("random.endTime", endTime);
   }
 
   // attempt to load the current game from local storage
@@ -133,7 +135,7 @@ function GamePractice() {
     setColHints(colHints);
 
     setSolved(solved === "true");
-    setPlayable(true);
+    setPlayable(solved !== "true");
 
     setStartTime(startTime);
     setEndTime(endTime);
@@ -143,10 +145,11 @@ function GamePractice() {
 
   return (
     <>
-      <h1>Practice Nonograms</h1>
+      <h2>Practice Nonograms</h2>
       <Selector rows={rows} cols={cols} seed={seed} updateBoard={updateBoard} />
       <Board
         gameName="random"
+        gameID={startTime > 0 ? String(startTime) : null} // use the game's start time as the game's ID
         rowCount={rows}
         colCount={cols}
         rowLabelsProp={rowHints}

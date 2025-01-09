@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import "./Board.css";
 
 function Board({
-  gameName,
-  rowCount,
+  gameName, // name of the game type (used for storing board for different games)
+  gameID, // ID of current game (make sure the stored game is same as current game)
+  rowCount, // game dimensions
   colCount,
-  rowLabelsProp,
+  rowLabelsProp, // game's row and column hints
   columnLabelsProp,
-  solved,
-  updateSolved,
-  playable,
+  solved, // check if game was solved
+  updateSolved, // function used to toggle if game is solved
+  playable, // check if the board should be playable yet
 }) {
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
@@ -35,10 +36,11 @@ function Board({
 
     // if there are no rows and cols, it is the first load
     // at this point, we can try to look for localStorage to find the board state
-    if (rows == 0 && cols == 0 && loadBoardState() && loadSolvedState()) {
-      return;
-    }
+    if (gameID == null) return; // if there is no gameID, don't do anything yet (the game has not loaded yet)
+    if (checkLoad() && loadBoardState() && loadSolvedState()) return; // attempt to load in all parts
 
+    // create a new instance of a board
+    localStorage.setItem(gameName + ".gameID", gameID); // label the state with the new gameID
     setBoardState(initBoard(rowCount, colCount));
     setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
     setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
@@ -528,6 +530,7 @@ function Board({
   // load the saved board state from localStorage
   function loadBoardState() {
     const board = JSON.parse(localStorage.getItem(gameName + ".board"));
+    console.log("loading board", board);
     if (board == null) return false;
 
     setBoardState(board); // set the board state
@@ -557,6 +560,18 @@ function Board({
 
     setRowLabelsSolved(rowsSolved);
     setColumnLabelsSolved(colsSolved);
+
+    return true;
+  }
+
+  // check if should be loaded based on the gameID
+  function checkLoad() {
+    // check if the the correct seed
+    const idStr = gameName + ".gameID";
+    const id = localStorage.getItem(idStr); // get the stored id
+
+    if (id == null) return false; // if no stored id
+    if (id !== gameID) return false; // if not matching
 
     return true;
   }
