@@ -45,11 +45,14 @@ function GameDaily() {
 
     const { date, rows, cols, rowHints, colHints } = result;
 
+    console.log(date, rows, cols, rowHints, colHints);
     // look in the localstorage for the date of the stored problem
     // if it matches the problem received from the server, load in the saved progress
     // if there is no loading, generate a new problem
     const storedDate = localStorage.getItem("daily.date");
     if (storedDate == null || storedDate !== date || !loadCurrentGame()) {
+      deleteCurrentGame(); // clear local storage
+
       createNewGame(rows, cols, rowHints, colHints, date); // generate a new game
 
       saveMetadata(date, false); // save the date and set solved as false
@@ -102,6 +105,7 @@ function GameDaily() {
 
     saveTime(startTime, 0); // save the timer into the local storage
 
+    console.log(rows, cols, rowHints, colHints, seed);
     // save the current game into local storage (confidential information)
     saveCurrentGame(rows, cols, rowHints, colHints, seed);
 
@@ -123,6 +127,7 @@ function GameDaily() {
     localStorage.setItem("daily.seed", seed);
   }
 
+  // load the entire game (NOTE: could split up soon)
   function loadCurrentGame() {
     const rows = Number(localStorage.getItem("daily.rows"));
     const cols = Number(localStorage.getItem("daily.cols"));
@@ -170,6 +175,22 @@ function GameDaily() {
     return true;
   }
 
+  // delete the current game
+  function deleteCurrentGame() {
+    localStorage.removeItem("daily.rows");
+    localStorage.removeItem("daily.cols");
+
+    localStorage.removeItem("daily.rowHints");
+    localStorage.removeItem("daily.colHints");
+
+    localStorage.removeItem("daily.seed");
+
+    localStorage.removeItem("daily.date");
+    localStorage.removeItem("daily.solved");
+
+    localStorage.removeItem("daily.startTime");
+    localStorage.removeItem("daily.endTime");
+  }
   // save metadata which contains the date and the solved status
   function saveMetadata(date, solved) {
     localStorage.setItem("daily.date", date);
@@ -182,6 +203,7 @@ function GameDaily() {
     localStorage.setItem("daily.endTime", endTime);
   }
 
+  console.log(rowHints, colHints);
   return (
     <div className="game-container">
       <h2 className="board-label">Today's Nonogram</h2>
