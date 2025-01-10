@@ -18,3 +18,11 @@
 .practice {
   display: inline;
 }
+
+.nav {
+  position: relative;
+
+  text-align: left;
+  width: 100%;
+  top: 0px;
+}
