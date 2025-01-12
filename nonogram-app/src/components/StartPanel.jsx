@@ -1,4 +1,4 @@
-import "./StartPanel.css";
+import "./styles/StartPanel.css";
 
 function StartPanel({
   startAction, // what to perform when the game is started

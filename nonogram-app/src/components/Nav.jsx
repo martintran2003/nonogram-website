@@ -1,4 +1,4 @@
-import "./Nav.css";
+import "./styles/Nav.css";
 function Nav({ setHome, setPractice }) {
   function onEnterPress(func) {
     return (event) => {
@@ -7,24 +7,30 @@ function Nav({ setHome, setPractice }) {
       }
     };
   }
+
   return (
     <div className="nav">
-      <ul className="nav-list">
-        <li className="nav-item" onClick={setHome}>
-          <h1 tabIndex="0" onKeyDown={onEnterPress(setHome)} className="home">
-            Nonograms
+      <div className="nav-container">
+        <div className="nav-left">
+          <h1 className="logo" tabIndex="0" onKeyDown={onEnterPress(setHome)}>
+            <a className="home" href="/">
+              Nonograms
+            </a>
           </h1>
-        </li>
-        <li className="nav-item" onClick={setPractice}>
-          <p
-            tabIndex="0"
-            onKeyDown={onEnterPress(setPractice)}
-            className="practice"
-          >
-            Practice Mode
-          </p>
-        </li>
-      </ul>
+          <ul className="nav-list">
+            <li className="nav-item" onClick={setPractice}>
+              <p
+                tabIndex="0"
+                onKeyDown={onEnterPress(setPractice)}
+                className="practice"
+              >
+                Practice Mode
+              </p>
+            </li>
+          </ul>
+        </div>
+        <div className="nav-right">Profile placeholder</div>
+      </div>
     </div>
   );
 }

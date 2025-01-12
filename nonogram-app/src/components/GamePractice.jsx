@@ -2,6 +2,7 @@ import Board from "./Board.jsx";
 import Selector from "./Selector.jsx";
 import { useState, useEffect } from "react";
 import SolveMessage from "./SolveMessage.jsx";
+import "./styles/GamePractice.css";
 
 function GamePractice() {
   // Board states
@@ -144,27 +145,34 @@ function GamePractice() {
   }
 
   return (
-    <>
+    <div className="game-container">
       <h2>Practice Nonograms</h2>
-      <Selector rows={rows} cols={cols} seed={seed} updateBoard={updateBoard} />
-      <Board
-        gameName="random"
-        gameID={startTime > 0 ? String(startTime) : null} // use the game's start time as the game's ID
-        rowCount={rows}
-        colCount={cols}
-        rowLabelsProp={rowHints}
-        columnLabelsProp={colHints}
-        solved={solved}
-        updateSolved={solve}
-        playable={playable}
-      />
-      {solved && (
-        <>
-          <SolveMessage solveTime={endTime - startTime} />
-          <button onClick={newGame}>New Game</button>
-        </>
-      )}
-    </>
+      <div className="board-container">
+        <Selector
+          rows={rows}
+          cols={cols}
+          seed={seed}
+          updateBoard={updateBoard}
+        />
+        <Board
+          gameName="random"
+          gameID={startTime > 0 ? String(startTime) : null} // use the game's start time as the game's ID
+          rowCount={rows}
+          colCount={cols}
+          rowLabelsProp={rowHints}
+          columnLabelsProp={colHints}
+          solved={solved}
+          updateSolved={solve}
+          playable={playable}
+        />
+        {solved && (
+          <>
+            <SolveMessage solveTime={endTime - startTime} />
+            <button onClick={newGame}>New Game</button>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
 

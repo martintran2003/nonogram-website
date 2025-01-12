@@ -1,0 +1,81 @@
+.nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
+  height: 5em;
+}
+
+.nav-container {
+  display: flex;
+  flex: 0 0 1800px;
+
+  height: 100%;
+
+  justify-content: space-between;
+}
+
+.nav-left {
+  display: flex;
+
+  align-items: center;
+
+  margin: 0 1em;
+  height: 100%;
+}
+
+.home {
+  color: rgb(120, 64, 210);
+  text-decoration: inherit;
+}
+.home:hover {
+  text-decoration: none;
+}
+
+.practice {
+  display: inline;
+}
+
+h1.logo {
+  display: inline;
+  font-size: 4em;
+  height: 1em;
+  line-height: 1em;
+
+  margin: 0;
+  padding: 0;
+}
+
+ul.nav-list {
+  display: flex;
+  width: 100%;
+  list-style-type: none;
+
+  padding: 10px;
+}
+
+.nav-item {
+  display: inline;
+  margin: 5px;
+
+  cursor: pointer;
+}
+
+.nav-right {
+  width: 50px;
+
+  height: 100%;
+}
+
+@media (max-width: 1800px) {
+  .nav-container {
+    flex: 0 0 1200px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .nav-container {
+    flex: 0 1 95%;
+  }
+}

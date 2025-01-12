@@ -2,7 +2,7 @@ import Board from "./Board.jsx";
 import { useState, useEffect } from "react";
 import SolveMessage from "./SolveMessage.jsx";
 import StartPanel from "./StartPanel.jsx";
-import "./GameDaily.css";
+import "./styles/GameDaily.css";
 
 function GameDaily() {
   const [rows, setRows] = useState(0);
@@ -207,28 +207,30 @@ function GameDaily() {
   return (
     <div className="game-container">
       <h2 className="board-label">Today's Nonogram</h2>
-      {loaded ? (
-        <>
-          {startTime == 0 ? (
-            <StartPanel startAction={startTimer} />
-          ) : (
-            <Board
-              gameName="daily"
-              gameID={date} // use the date as the game's ID
-              rowCount={rows}
-              colCount={cols}
-              rowLabelsProp={rowHints}
-              columnLabelsProp={colHints}
-              solved={solved}
-              updateSolved={solve}
-              playable={playable}
-            />
-          )}
-          {solved && <SolveMessage solveTime={endTime - startTime} />}
-        </>
-      ) : (
-        <div>Loading Game...</div>
-      )}
+      <div className="board-container">
+        {loaded ? (
+          <>
+            {startTime == 0 ? (
+              <StartPanel startAction={startTimer} />
+            ) : (
+              <Board
+                gameName="daily"
+                gameID={date} // use the date as the game's ID
+                rowCount={rows}
+                colCount={cols}
+                rowLabelsProp={rowHints}
+                columnLabelsProp={colHints}
+                solved={solved}
+                updateSolved={solve}
+                playable={playable}
+              />
+            )}
+            {solved && <SolveMessage solveTime={endTime - startTime} />}
+          </>
+        ) : (
+          <div>Loading Game...</div>
+        )}
+      </div>
     </div>
   );
 }

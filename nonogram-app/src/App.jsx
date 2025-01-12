@@ -20,8 +20,10 @@ function App() {
   return (
     <>
       <Nav setHome={setDaily} setPractice={setPractice} />
-      {mode == "daily" && <GameDaily />}
-      {mode == "practice" && <GamePractice />}
+      <div className="content">
+        {mode == "daily" && <GameDaily />}
+        {mode == "practice" && <GamePractice />}
+      </div>
     </>
   );
 }

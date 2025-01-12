@@ -1,0 +1,40 @@
+:root {
+  --game-height: 1000px;
+  --board-size: 700px;
+}
+
+.game-container {
+  flex: 0 0 1800px;
+  min-height: var(--game-size);
+  min-width: 0;
+}
+
+.board-label {
+  flex: 0 0 auto;
+}
+
+.board-container {
+  flex: 0 0 var(--board-size);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* height: 50vh; */
+  min-width: 0;
+}
+
+@media (max-width: 1800px) {
+  .game-container {
+    flex: 0 0 1200px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .game-container {
+    flex: 0 1 95%;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+}

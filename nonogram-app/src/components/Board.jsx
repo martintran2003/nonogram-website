@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./Board.css";
+import "./styles/Board.css";
 
 function Board({
   gameName, // name of the game type (used for storing board for different games)
@@ -39,14 +39,20 @@ function Board({
     if (gameID == null) return; // if there is no gameID, don't do anything yet (the game has not loaded yet)
     if (checkLoad() && loadBoardState() && loadSolvedState()) return; // attempt to load in all parts
 
-    // create a new instance of a board in local storage
+    // create a new board
+    const newBoard = initBoard(rowCount, colCount);
+    const newRowSolved = initRowsSolved(rowCount, rowLabelsProp);
+    const newColSolved = initColsSolved(colCount, columnLabelsProp);
+
+    // save into local storage with new gameID
     localStorage.setItem(gameName + ".gameID", gameID); // label the state with the new gameID
-    saveBoardState(initBoard(rowCount, colCount)); // save empty board\
+    saveBoardState(newBoard); // save empty board
+    saveSolvedState(newRowSolved, newColSolved);
 
     // create an initialized board state
-    setBoardState(initBoard(rowCount, colCount));
-    setRowLabelsSolved(initRowsSolved(rowCount, rowLabelsProp));
-    setColumnLabelsSolved(initColsSolved(colCount, columnLabelsProp));
+    setBoardState(newBoard);
+    setRowLabelsSolved(newRowSolved);
+    setColumnLabelsSolved(newColSolved);
   }, [rowCount, colCount, rowLabelsProp, columnLabelsProp]);
 
   /*
@@ -477,7 +483,7 @@ function Board({
     try {
       const rowsSolved = rowLabels[row].map((item, index) => {
         return rowLabelsSolved[row][index] ? (
-          <em key={"rowhint" + row + "-" + index}>{String(item)}</em>
+          <s key={"rowhint" + row + "-" + index}>{String(item)}</s>
         ) : (
           String(item)
         );
@@ -501,7 +507,7 @@ function Board({
     try {
       const colsSolved = columnLabels[col].map((item, index) => {
         return columnLabelsSolved[col][index] ? (
-          <em key={"colhint" + col + "-" + index}>{String(item)}</em>
+          <s key={"colhint" + col + "-" + index}>{String(item)}</s>
         ) : (
           String(item)
         );
