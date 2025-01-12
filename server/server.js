@@ -28,3 +28,5 @@ const job = schedule.scheduleJob("0 0 * * *", async function () {
   console.log("Populating week");
   await populateWeek(10, 10);
 });
+
+module.exports = app;
