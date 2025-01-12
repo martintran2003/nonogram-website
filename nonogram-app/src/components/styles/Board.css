@@ -30,11 +30,6 @@
     background-color: black;
     border: 0.5px solid white;
   }
-
-  .selected {
-    background-color: rgb(120, 64, 210);
-  }
-
   .hover {
     background-color: rgb(139, 138, 60);
     box-shadow: 0 0 6px 2px rgb(237, 246, 158) inset;
@@ -42,6 +37,10 @@
 
   .guide {
     background-color: rgb(33, 34, 0);
+  }
+
+  .selected {
+    background-color: rgb(120, 64, 210);
   }
 }
 
@@ -51,16 +50,16 @@
     border: 0.5px solid black;
   }
 
-  .selected {
-    background-color: rgb(101, 209, 255);
-  }
-
   .hover {
     background-color: rgb(154, 255, 131);
     box-shadow: 0 0 6px 2px rgb(0, 168, 0) inset;
   }
   .guide {
     background-color: rgb(230, 255, 192);
+  }
+
+  .selected {
+    background-color: rgb(101, 209, 255);
   }
 }
 
