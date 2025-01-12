@@ -203,7 +203,6 @@ function GameDaily() {
     localStorage.setItem("daily.endTime", endTime);
   }
 
-  console.log(rowHints, colHints);
   return (
     <div className="game-container">
       <h2 className="board-label">Today's Nonogram</h2>
