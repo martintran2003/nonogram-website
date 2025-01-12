@@ -1,10 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-const {
-  generateRandomNonogram,
-} = require("../controllers/nonogramControllers");
-const dailyNonogramRouter = require("../routes/dailyProblemRouter");
-const { populateWeek } = require("../db/populate");
+const { generateRandomNonogram } = require("./controllers/nonogramControllers");
+const dailyNonogramRouter = require("./routes/dailyProblemRouter");
+const { populateWeek } = require("./db/populate");
 
 process.on("uncaughtException", function (err) {
   console.error(err);
