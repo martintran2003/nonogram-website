@@ -41,7 +41,7 @@ function GamePractice() {
     const { rowHints, colHints } = await fetch(
       `${import.meta.env.VITE_NONOGRAM_SERVER}/randomproblem?` +
         new URLSearchParams({
-          rows: row,s
+          rows: row,
           cols: col,
           seed: seed,
         })
