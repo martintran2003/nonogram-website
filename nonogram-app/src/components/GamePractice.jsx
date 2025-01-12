@@ -39,9 +39,9 @@ function GamePractice() {
   // update and fetch a new board
   async function updateBoard(row, col, seed) {
     const { rowHints, colHints } = await fetch(
-      "http://localhost:8000/randomproblem?" +
+      `${import.meta.env.VITE_NONOGRAM_SERVER}/randomproblem?` +
         new URLSearchParams({
-          rows: row,
+          rows: row,s
           cols: col,
           seed: seed,
         })
