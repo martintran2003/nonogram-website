@@ -21,6 +21,7 @@ app.use(
       if (
         !(origin == process.env.CLIENT_URL || origin == "http://localhost:5173")
       ) {
+        console.log("Fail to connect to " + origin);
         const msg =
           "The CORS policy for this site does not allow access from the specified Origin.";
         return callback(new Error(msg), false);
