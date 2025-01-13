@@ -11,7 +11,6 @@ process.on("uncaughtException", function (err) {
 
 const app = express();
 
-app.use(cors());
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -26,6 +25,8 @@ app.use(
           "The CORS policy for this site does not allow access from the specified Origin.";
         return callback(new Error(msg), false);
       }
+
+      console.log("correct origin");
       return callback(null, true);
     },
   })
