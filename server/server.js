@@ -10,7 +10,26 @@ process.on("uncaughtException", function (err) {
 
 const app = express();
 
+const allowedOrigins = [
+  "https://vercel.com/martintran2003s-projects/nonogram-website/Am5PQwQabeoJmMUJYh6bMfgMkT1o",
+];
 app.use(cors());
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        const msg =
+          "The CORS policy for this site does not allow access from the specified Origin.";
+        return callback(new Error(msg), false);
+      }
+      return callback(null, true);
+    },
+  })
+);
 app.use(express.json());
 
 app.get("/randomproblem?", generateRandomNonogram);
