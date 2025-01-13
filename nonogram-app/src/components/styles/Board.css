@@ -80,37 +80,37 @@ table {
 
 @media (prefers-color-scheme: dark) {
   .table > tbody > tr:nth-child(5n + 1) {
-    border-bottom: 1.5px white solid;
+    border-bottom: 2px white solid;
   }
 
   td:nth-child(5n + 1) {
-    border-right: 1.5px white solid;
+    border-right: 2px white solid;
   }
 
   td:last-child {
-    border-right: 1.5px white solid;
+    border-right: 2px white solid;
   }
 
   tr:last-child {
-    border-bottom: 1.5px white solid;
+    border-bottom: 2px white solid;
   }
 }
 
 @media (prefers-color-scheme: light) {
   .table > tbody > tr:nth-child(5n + 1) {
-    border-bottom: 1.5px black solid;
+    border-bottom: 2px black solid;
   }
 
   td:nth-child(5n + 1) {
-    border-right: 1.5px black solid;
+    border-right: 2px black solid;
   }
 
   td:last-child {
-    border-right: 1.5px black solid;
+    border-right: 2px black solid;
   }
 
   tr:last-child {
-    border-bottom: 1.5px black solid;
+    border-bottom: 2px black solid;
   }
 }
 

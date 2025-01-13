@@ -38,7 +38,7 @@ app.get("/randomproblem?", generateRandomNonogram);
 app.use("/daily", dailyNonogramRouter);
 
 app.use("/", (req, res) => {
-  res.json("hiii");
+  res.json("home");
 });
 
 const port = process.env.PORT || 8080;
