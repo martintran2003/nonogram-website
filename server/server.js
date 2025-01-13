@@ -36,7 +36,7 @@ app.get("/randomproblem?", generateRandomNonogram);
 
 app.use("/daily", dailyNonogramRouter);
 
-app.listen(8000, () => {
+app.listen(8080, () => {
   console.log(`Server is running on port 8000.`);
 });
 
