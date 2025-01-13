@@ -4,15 +4,13 @@ const { generateRandomNonogram } = require("./controllers/nonogramControllers");
 const dailyNonogramRouter = require("./routes/dailyProblemRouter");
 const { populateWeek } = require("./db/populate");
 
+require("dotenv").config();
 process.on("uncaughtException", function (err) {
   console.error(err);
 });
 
 const app = express();
 
-const allowedOrigins = [
-  "nonogram-website-ecu0tfe5k-martintran2003s-projects.vercel.app",
-];
 app.use(cors());
 app.use(
   cors({
@@ -21,7 +19,9 @@ app.use(
         return callback(null, true);
       }
 
-      if (allowedOrigins.includes(origin)) {
+      if (
+        !(origin == process.env.CLIENT_URL || origin == "http://localhost:5173")
+      ) {
         const msg =
           "The CORS policy for this site does not allow access from the specified Origin.";
         return callback(new Error(msg), false);
