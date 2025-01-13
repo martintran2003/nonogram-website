@@ -11,7 +11,7 @@ process.on("uncaughtException", function (err) {
 const app = express();
 
 const allowedOrigins = [
-  "https://vercel.com/martintran2003s-projects/nonogram-website/Am5PQwQabeoJmMUJYh6bMfgMkT1o",
+  "nonogram-website-ecu0tfe5k-martintran2003s-projects.vercel.app",
 ];
 app.use(cors());
 app.use(
