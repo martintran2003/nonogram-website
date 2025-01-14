@@ -1,6 +1,8 @@
 // populate.js
 // Functions to populate the database with daily nonogram problems
 
+const crypto = require("crypto");
+
 const { setDailyNonogram10x10 } = require("./queries");
 const { generateBoard } = require("../scripts/nonogramGenerator");
 // run python script for generating a random nonogram given a seed
