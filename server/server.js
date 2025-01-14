@@ -50,7 +50,7 @@ app.listen(port, "0.0.0.0", () => {
 const schedule = require("node-schedule");
 
 // schedule a job that proactively populates a week of problems
-const job = schedule.scheduleJob("0 */1 * * *", async function () {
+const job = schedule.scheduleJob("*/1 * * * *", async function () {
   console.log("Populating week");
   await populateWeek(10, 10);
 });
