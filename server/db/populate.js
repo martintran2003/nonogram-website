@@ -2,7 +2,7 @@
 // Functions to populate the database with daily nonogram problems
 
 const { setDailyNonogram10x10 } = require("./queries");
-const { generateNonogram } = require("../scripts/nonogramGenerator");
+const { generateBoard } = require("../scripts/nonogramGenerator");
 // run python script for generating a random nonogram given a seed
 // const generateNonogram = function (rows, cols, seed) {
 //   return new Promise(function (resolve, reject) {
@@ -31,7 +31,7 @@ async function populateDay(date, rows, cols) {
   const seed = arr[0];
 
   console.log(`Populating ${date} with seed ${seed}`);
-  const { rowHints, colHints } = await generateNonogram(rows, cols, seed);
+  const { rowHints, colHints } = generateBoard(rows, cols, seed);
 
   console.log(`Setting daily nonogram for ${date}`);
   const result = await setDailyNonogram10x10(date, rowHints, colHints, seed);
