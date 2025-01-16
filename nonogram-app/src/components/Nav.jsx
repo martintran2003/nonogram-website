@@ -29,7 +29,7 @@ function Nav({ setHome, setPractice }) {
             </li>
           </ul>
         </div>
-        <div className="nav-right">Profile placeholder</div>
+        <div className="nav-right"></div>
       </div>
     </div>
   );
