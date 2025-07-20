@@ -5,25 +5,6 @@ const crypto = require("crypto");
 
 const { setDailyNonogram10x10 } = require("./queries");
 const { generateBoard } = require("../scripts/nonogramGenerator");
-// run python script for generating a random nonogram given a seed
-// const generateNonogram = function (rows, cols, seed) {
-//   return new Promise(function (resolve, reject) {
-//     // const { spawn } = require("child_process");
-//     // const prog = spawn("python3", [
-//     //   "./scripts/nonogramGenerator.py",
-//     //   rows,
-//     //   cols,
-//     //   seed,
-//     // ]);
-//     // prog.stdout.on("data", function (data) {
-//     //   const result = JSON.parse(data);
-
-//     //   resolve(result);
-//     // });
-
-//     resolve(generateNonogram(rows, cols, seed));
-//   });
-// };
 
 // populate a given day with nonograms with random seed if not present
 async function populateDay(date, rows, cols) {
@@ -63,4 +44,10 @@ async function populateWeek(rows, cols) {
   }
 }
 
+
 module.exports = { populateDay, populateWeek };
+
+(async () => {
+  await populateWeek(10, 10);
+})();
+ 
